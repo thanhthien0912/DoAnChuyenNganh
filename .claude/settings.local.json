@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "Bash(mongosh:*)",
+      "Bash(node:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm install:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(/killshell:*)",
+      "Bash(dir:*)",
+      "Bash(tasklist:*)",
+      "Bash(npm start:*)"
     ],
     "deny": [],
     "ask": []
