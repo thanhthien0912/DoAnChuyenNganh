@@ -1,4 +1,4 @@
-const { validationResult, body } = require('express-validator');
+const { validationResult, body, query } = require('express-validator');
 const logger = require('../utils/logger');
 
 // Validation middleware factory
@@ -86,6 +86,80 @@ const walletValidation = {
       .matches(/^[A-Z]{3}$/).withMessage('Currency must be a valid 3-letter code'),
 
     validate
+  ],
+
+  requestTopup: [
+    body('amount')
+      .isFloat({ min: 1000, max: 50000000 }).withMessage('Số tiền nạp phải từ 1.000 đến 50.000.000 VND'),
+
+    body('method')
+      .optional()
+      .isIn(['manual', 'bank_transfer', 'qr_pay', 'card', 'MANUAL', 'BANK_TRANSFER', 'QR_PAY', 'CARD'])
+      .withMessage('Phương thức nạp không hợp lệ'),
+
+    body('note')
+      .optional()
+      .isLength({ max: 200 }).withMessage('Ghi chú tối đa 200 ký tự'),
+
+    validate
+  ],
+
+  topupHistoryQuery: [
+    query('page')
+      .optional()
+      .isInt({ min: 1 }).withMessage('Trang phải là số nguyên dương'),
+
+    query('limit')
+      .optional()
+      .isInt({ min: 1, max: 100 }).withMessage('Giới hạn phải từ 1 đến 100'),
+
+    query('status')
+      .optional()
+      .isIn(['PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'pending', 'approved', 'rejected', 'cancelled'])
+      .withMessage('Trạng thái không hợp lệ'),
+
+    validate
+  ]
+};
+
+const cardValidation = {
+  linkCard: [
+    body('uid')
+      .notEmpty().withMessage('UID của thẻ là bắt buộc')
+      .isLength({ min: 4, max: 64 }).withMessage('UID phải từ 4 đến 64 ký tự')
+      .matches(/^[A-Za-z0-9:_-]+$/).withMessage('UID chỉ được chứa chữ, số và các ký tự : _ -'),
+
+    body('alias')
+      .optional()
+      .isLength({ max: 50 }).withMessage('Tên gợi nhớ tối đa 50 ký tự'),
+
+    body('makePrimary')
+      .optional()
+      .isBoolean().withMessage('Giá trị makePrimary phải là boolean'),
+
+    body('metadata')
+      .optional()
+      .isObject().withMessage('Metadata phải là object'),
+
+    body('metadata.deviceModel')
+      .optional()
+      .isString().withMessage('deviceModel phải là chuỗi'),
+
+    body('metadata.issuer')
+      .optional()
+      .isString().withMessage('issuer phải là chuỗi'),
+
+    validate
+  ],
+
+  updateStatus: [
+    body('status')
+      .isIn(['ACTIVE', 'LOCKED', 'active', 'locked']).withMessage('Trạng thái thẻ không hợp lệ'),
+    validate
+  ],
+
+  setPrimary: [
+    validate
   ]
 };
 
@@ -117,6 +191,40 @@ const transactionValidation = {
 
     body('amount')
       .isFloat({ min: 1000, max: 10000000 }).withMessage('Amount must be between 1,000 and 10,000,000 VND'),
+
+    validate
+  ],
+
+  historyFilters: [
+    query('page')
+      .optional()
+      .isInt({ min: 1 }).withMessage('Trang phải lớn hơn 0'),
+
+    query('limit')
+      .optional()
+      .isInt({ min: 1, max: 100 }).withMessage('Giới hạn phải từ 1 đến 100'),
+
+    query('type')
+      .optional()
+      .isIn(['TOPUP', 'PAYMENT', 'REFUND', 'TRANSFER', 'topup', 'payment', 'refund', 'transfer'])
+      .withMessage('Loại giao dịch không hợp lệ'),
+
+    query('status')
+      .optional()
+      .isIn(['PENDING', 'COMPLETED', 'FAILED', 'CANCELLED', 'pending', 'completed', 'failed', 'cancelled'])
+      .withMessage('Trạng thái giao dịch không hợp lệ'),
+
+    query('category')
+      .optional()
+      .isLength({ max: 50 }).withMessage('Danh mục tối đa 50 ký tự'),
+
+    query('startDate')
+      .optional()
+      .isISO8601().withMessage('Ngày bắt đầu không hợp lệ'),
+
+    query('endDate')
+      .optional()
+      .isISO8601().withMessage('Ngày kết thúc không hợp lệ'),
 
     validate
   ]
@@ -182,5 +290,6 @@ module.exports = {
   transactionValidation,
   adminValidation,
   idValidation,
-  paginationValidation
+  paginationValidation,
+  cardValidation
 };

@@ -14,6 +14,8 @@ const logger = require('./utils/logger');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const walletRoutes = require('./routes/walletRoutes');
+const cardRoutes = require('./routes/cardRoutes');
 
 const app = express();
 
@@ -71,6 +73,8 @@ app.get('/health', (req, res) => {
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/wallet', walletRoutes);
+app.use('/api/cards', cardRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

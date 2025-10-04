@@ -65,12 +65,14 @@ class TransactionController {
       const filters = {
         type: req.query.type,
         status: req.query.status,
+        category: req.query.category,
         startDate: req.query.startDate,
         endDate: req.query.endDate
       };
 
+      const userId = req.user?._id?.toString();
       const result = await paymentService.getTransactionHistory(
-        req.user._id,
+        userId,
         page,
         limit,
         filters
@@ -81,7 +83,7 @@ class TransactionController {
         data: result
       });
     } catch (error) {
-      logger.error('Get transaction history error:', error.message);
+      logger.error(`Get transaction history error: ${error.message}`, { stack: error.stack });
       res.status(500).json({
         success: false,
         error: {
@@ -96,7 +98,8 @@ class TransactionController {
   async getTransactionByReference(req, res) {
     try {
       const { referenceNumber } = req.params;
-      const transaction = await paymentService.getTransactionByReference(referenceNumber);
+      const userId = req.user?._id?.toString();
+      const transaction = await paymentService.getTransactionByReference(referenceNumber, userId);
 
       res.json({
         success: true,
@@ -105,7 +108,7 @@ class TransactionController {
         }
       });
     } catch (error) {
-      logger.error('Get transaction by reference error:', error.message);
+      logger.error(`Get transaction by reference error: ${error.message}`, { stack: error.stack });
       res.status(404).json({
         success: false,
         error: {
@@ -120,8 +123,9 @@ class TransactionController {
   async getTransactionStats(req, res) {
     try {
       const { startDate, endDate } = req.query;
+      const userId = req.user?._id?.toString();
       const stats = await paymentService.getTransactionStats(
-        req.user._id,
+        userId,
         startDate,
         endDate
       );
@@ -133,7 +137,7 @@ class TransactionController {
         }
       });
     } catch (error) {
-      logger.error('Get transaction stats error:', error.message);
+      logger.error(`Get transaction stats error: ${error.message}`, { stack: error.stack });
       res.status(500).json({
         success: false,
         error: {
