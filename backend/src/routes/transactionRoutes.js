@@ -3,11 +3,12 @@ const { body } = require('express-validator');
 const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 const { authenticate, authorize, adminOnly } = require('../middlewares/auth');
+const { requirePinConfirmation } = require('../middlewares/security');
 const { transactionValidation, validate } = require('../middlewares/validation');
 
 // User transaction routes
 router.post('/payment', authenticate, transactionValidation.nfcTransaction, transactionController.processPayment);
-router.post('/topup', authenticate, [
+router.post('/topup', authenticate, requirePinConfirmation, [
   body('amount')
     .isFloat({ min: 1000, max: 10000000 }).withMessage('Amount must be between 1,000 and 10,000,000 VND'),
   body('description')
@@ -15,7 +16,7 @@ router.post('/topup', authenticate, [
     .isLength({ max: 500 }).withMessage('Description cannot exceed 500 characters'),
   validate
 ], transactionController.processTopup);
-router.get('/history', authenticate, transactionController.getTransactionHistory);
+router.get('/history', authenticate, transactionValidation.historyFilters, transactionController.getTransactionHistory);
 router.get('/stats', authenticate, transactionController.getTransactionStats);
 router.get('/reference/:referenceNumber', authenticate, transactionController.getTransactionByReference);
 

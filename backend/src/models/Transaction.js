@@ -141,7 +141,14 @@ transactionSchema.statics.getTransactionsByStatus = function(status, limit = 50,
 
 transactionSchema.statics.getTransactionStats = async function(userId, startDate, endDate) {
   const matchStage = {};
-  if (userId) matchStage.userId = mongoose.Types.ObjectId(userId);
+  if (userId) {
+    const idString = userId instanceof mongoose.Types.ObjectId ? userId.toString() : userId;
+    if (!idString || !mongoose.Types.ObjectId.isValid(idString)) {
+      throw new Error('Invalid user ID for transaction stats');
+    }
+
+    matchStage.userId = new mongoose.Types.ObjectId(idString);
+  }
   if (startDate || endDate) {
     matchStage.createdAt = {};
     if (startDate) matchStage.createdAt.$gte = new Date(startDate);
