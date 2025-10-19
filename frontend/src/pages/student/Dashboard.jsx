@@ -22,6 +22,7 @@ import {
 import { transactionAPI } from '../../services/api'
 import { useSnackbar } from '../../contexts/SnackContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { formatVND, formatCurrency, formatDate } from '../../utils/formatters'
 
 const Dashboard = () => {
   const [loading, setLoading] = useState(true)
@@ -117,7 +118,7 @@ const Dashboard = () => {
                     Số dư ví
                   </Typography>
                   <Typography variant="h5">
-                    {wallet?.balance?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.balance)}
                   </Typography>
                 </Box>
               </Box>
@@ -136,7 +137,7 @@ const Dashboard = () => {
                     Đã chi hôm nay
                   </Typography>
                   <Typography variant="h5">
-                    {wallet?.dailySpent?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.dailySpent)}
                   </Typography>
                 </Box>
               </Box>
@@ -155,7 +156,7 @@ const Dashboard = () => {
                     Đã chi tháng này
                   </Typography>
                   <Typography variant="h5">
-                    {wallet?.monthlySpent?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.monthlySpent)}
                   </Typography>
                 </Box>
               </Box>
@@ -226,7 +227,7 @@ const Dashboard = () => {
                     {transaction.description}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {new Date(transaction.createdAt).toLocaleString('vi-VN')}
+                    {formatDate(transaction.createdAt)}
                   </Typography>
                 </Box>
                 <Typography
@@ -234,7 +235,7 @@ const Dashboard = () => {
                   color={transaction.type === 'TOPUP' ? 'success.main' : 'error.main'}
                 >
                   {transaction.type === 'TOPUP' ? '+' : '-'}
-                  {transaction.amount?.toLocaleString('vi-VN')} VND
+                  {formatVND(transaction.amount)}
                 </Typography>
               </Box>
             ))

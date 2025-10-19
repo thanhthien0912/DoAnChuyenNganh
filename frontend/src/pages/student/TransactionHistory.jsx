@@ -20,6 +20,7 @@ import {
 } from '@mui/material'
 import { transactionAPI } from '../../services/api'
 import { useSnackbar } from '../../contexts/SnackContext'
+import { formatVND, formatDate } from '../../utils/formatters'
 
 const TransactionHistory = () => {
   const [transactions, setTransactions] = useState([])
@@ -38,17 +39,36 @@ const TransactionHistory = () => {
   const loadTransactions = useCallback(async () => {
     try {
       setLoading(true)
+      
+      // Loại bỏ các giá trị rỗng khỏi filters
+      const cleanFilters = Object.entries(filters).reduce((acc, [key, value]) => {
+        if (value !== '' && value !== null && value !== undefined) {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+      
       const params = {
         page: page + 1,
         limit: rowsPerPage,
-        ...filters,
+        ...cleanFilters,
       }
 
+      console.log('Loading transactions with params:', params)
       const response = await transactionAPI.getTransactionHistory(params)
+      console.log('Transaction response:', response.data)
+      
       setTransactions(response.data.data.transactions)
       setPagination(response.data.data.pagination || { total: response.data.data.transactions?.length || 0, pages: 1 })
     } catch (error) {
-      showSnackbar('Không thể tải lịch sử giao dịch', 'error')
+      console.error('Transaction loading error:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error
+      })
+      const errorMessage = error.response?.data?.error?.message || 'Không thể tải lịch sử giao dịch'
+      showSnackbar(errorMessage, 'error')
     } finally {
       setLoading(false)
     }
@@ -105,7 +125,7 @@ const TransactionHistory = () => {
 
   const formatAmount = (amount, type) => {
     const sign = type?.toLowerCase() === 'topup' ? '+' : '-'
-    return `${sign}${amount?.toLocaleString('vi-VN')} VND`
+    return `${sign}${formatVND(amount)}`
   }
 
   if (loading) {
@@ -222,7 +242,7 @@ const TransactionHistory = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      {new Date(transaction.createdAt).toLocaleString('vi-VN')}
+                      {formatDate(transaction.createdAt)}
                     </TableCell>
                   </TableRow>
                 ))

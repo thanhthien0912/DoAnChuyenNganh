@@ -8,7 +8,9 @@ import MainLayout from './components/common/MainLayout'
 // Pages
 import Landing from './pages/shared/Landing'
 import Login from './pages/auth/Login'
+import NeumorphismLogin from './pages/auth/NeumorphismLogin'
 import Register from './pages/auth/Register'
+import NeumorphismRegister from './pages/auth/NeumorphismRegister'
 import Dashboard from './pages/student/Dashboard'
 import Wallet from './pages/student/Wallet'
 import TransactionHistory from './pages/student/TransactionHistory'
@@ -16,6 +18,7 @@ import Profile from './pages/student/Profile'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import UserManagement from './pages/admin/UserManagement'
 import TransactionManagement from './pages/admin/TransactionManagement'
+import TopupRequestManagement from './pages/admin/TopupRequestManagement'
 import NotFound from './pages/shared/NotFound'
 
 function App() {
@@ -46,8 +49,10 @@ function App() {
       <Route path="/" element={<Landing />} />
 
       {/* Auth Routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/login" element={<NeumorphismLogin />} />
+      <Route path="/login-old" element={<Login />} />
+      <Route path="/register" element={<NeumorphismRegister />} />
+      <Route path="/register-old" element={<Register />} />
 
       {/* Protected Routes */}
       <Route element={<MainLayout />}>
@@ -74,6 +79,9 @@ function App() {
         } />
         <Route path="/admin/transactions" element={
           hasAdminAccess ? <TransactionManagement /> : <Navigate to={getFallbackPath()} replace />
+        } />
+        <Route path="/admin/topup-requests" element={
+          hasAdminAccess ? <TopupRequestManagement /> : <Navigate to={getFallbackPath()} replace />
         } />
       </Route>
 
