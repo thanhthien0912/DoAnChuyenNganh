@@ -29,10 +29,12 @@ Dự án xây dựng một nền tảng ví điện tử toàn diện dành riê
 ## Yêu cầu kỹ thuật
 - **Backend**: Node.js + Express.js
 - **Database**: MongoDB
-- **Mobile**: Kotlin (Native Android)
-- **Frontend**: React.js
-- **API**: RESTful API
-- **Bảo mật**: Xác thực backend, token hóa giao dịch
+- **Mobile**: Flutter (Cross-platform)
+- **Frontend**: React.js + Vite
+- **API**: RESTful API với Swagger documentation
+- **Bảo mật**: Xác thực JWT, rate limiting, helmet middleware
+- **State Management**: React Context API, Riverpod (Flutter)
+- **UI Framework**: Material-UI (React), Material Design (Flutter)
 
 ## Ràng buộc thời gian
 - Phát triển theo từng giai đoạn

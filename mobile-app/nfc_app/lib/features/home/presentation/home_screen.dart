@@ -94,28 +94,6 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Text('Chi tiêu', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _StatCard(
-                          title: 'Còn lại hôm nay',
-                          value: formatCompactCurrency(summary.dailyRemaining, currency: summary.currency),
-                          icon: Icons.calendar_today,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _StatCard(
-                          title: 'Còn lại tháng',
-                          value: formatCompactCurrency(summary.monthlyRemaining, currency: summary.currency),
-                          icon: Icons.bar_chart,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [

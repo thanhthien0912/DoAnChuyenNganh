@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -20,9 +22,20 @@ class _TopupScreenState extends ConsumerState<TopupScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   String _method = 'MANUAL';
+  Timer? _refreshTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-refresh every 30 seconds
+    _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      ref.read(topupHistoryProvider.notifier).refresh();
+    });
+  }
 
   @override
   void dispose() {
+    _refreshTimer?.cancel();
     _amountController.dispose();
     _noteController.dispose();
     super.dispose();
@@ -167,7 +180,10 @@ class _TopupScreenState extends ConsumerState<TopupScreen> {
                       child: ListTile(
                         title: Text('Yêu cầu ${item.referenceNumber}'),
                         subtitle: Text(_buildSubtitle(item)),
-                        trailing: Chip(label: Text(item.status)),
+                        trailing: Chip(
+                          label: Text(_getStatusLabel(item.status)),
+                          backgroundColor: _getStatusColor(item.status),
+                        ),
                       ),
                     );
                   },
@@ -189,5 +205,35 @@ class _TopupScreenState extends ConsumerState<TopupScreen> {
       return '$amountText • $timeText\n${item.note}';
     }
     return '$amountText • $timeText';
+  }
+
+  String _getStatusLabel(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'Chờ duyệt';
+      case 'APPROVED':
+        return 'Đã duyệt';
+      case 'REJECTED':
+        return 'Từ chối';
+      case 'CANCELLED':
+        return 'Đã hủy';
+      default:
+        return status;
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return Colors.orange.shade100;
+      case 'APPROVED':
+        return Colors.green.shade100;
+      case 'REJECTED':
+        return Colors.red.shade100;
+      case 'CANCELLED':
+        return Colors.grey.shade200;
+      default:
+        return Colors.blue.shade100;
+    }
   }
 }

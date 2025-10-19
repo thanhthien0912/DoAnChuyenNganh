@@ -14,7 +14,7 @@ const transactionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['topup', 'payment', 'refund', 'transfer'],
+    enum: ['TOPUP', 'PAYMENT', 'REFUND', 'TRANSFER'],
     uppercase: true
   },
   amount: {
@@ -28,8 +28,8 @@ const transactionSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['pending', 'completed', 'failed', 'cancelled'],
-    default: 'pending',
+    enum: ['PENDING', 'COMPLETED', 'FAILED', 'CANCELLED'],
+    default: 'PENDING',
     uppercase: true
   },
   description: {
@@ -102,7 +102,7 @@ transactionSchema.index({ referenceNumber: 1 }, { unique: true });
 
 // Instance methods
 transactionSchema.methods.completeTransaction = function(processedBy = null) {
-  this.status = 'completed';
+  this.status = 'COMPLETED';
   this.processedAt = new Date();
   if (processedBy) {
     this.processedBy = processedBy;
@@ -110,13 +110,13 @@ transactionSchema.methods.completeTransaction = function(processedBy = null) {
 };
 
 transactionSchema.methods.failTransaction = function(reason) {
-  this.status = 'failed';
+  this.status = 'FAILED';
   this.processedAt = new Date();
   this.failureReason = reason;
 };
 
 transactionSchema.methods.cancelTransaction = function() {
-  this.status = 'cancelled';
+  this.status = 'CANCELLED';
   this.processedAt = new Date();
 };
 

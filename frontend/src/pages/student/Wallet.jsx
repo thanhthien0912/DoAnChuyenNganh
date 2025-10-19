@@ -28,6 +28,7 @@ import {
 import { transactionAPI } from '../../services/api'
 import { useSnackbar } from '../../contexts/SnackContext'
 import { useAuth } from '../../contexts/AuthContext'
+import { formatVND, formatCurrency, formatDate } from '../../utils/formatters'
 
 const Wallet = () => {
   const [loading, setLoading] = useState(true)
@@ -128,7 +129,7 @@ const Wallet = () => {
                 <Box>
                   <Typography variant="body2">Số dư hiện tại</Typography>
                   <Typography variant="h4">
-                    {wallet?.balance?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.balance)}
                   </Typography>
                 </Box>
               </Box>
@@ -147,10 +148,10 @@ const Wallet = () => {
                     Đã chi hôm nay
                   </Typography>
                   <Typography variant="h5">
-                    {wallet?.dailySpent?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.dailySpent)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Giới hạn: {wallet?.dailyLimit?.toLocaleString('vi-VN')} VND
+                    Giới hạn: {formatVND(wallet?.dailyLimit)}
                   </Typography>
                 </Box>
               </Box>
@@ -169,10 +170,10 @@ const Wallet = () => {
                     Đã chi tháng này
                   </Typography>
                   <Typography variant="h5">
-                    {wallet?.monthlySpent?.toLocaleString('vi-VN')} VND
+                    {formatVND(wallet?.monthlySpent)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Giới hạn: {wallet?.monthlyLimit?.toLocaleString('vi-VN')} VND
+                    Giới hạn: {formatVND(wallet?.monthlyLimit)}
                   </Typography>
                 </Box>
               </Box>
@@ -226,7 +227,7 @@ const Wallet = () => {
                             }
                           >
                             {transaction.type === 'TOPUP' ? '+' : '-'}
-                            {transaction.amount?.toLocaleString('vi-VN')} VND
+                            {formatVND(transaction.amount)}
                           </Typography>
                         </Box>
                       }

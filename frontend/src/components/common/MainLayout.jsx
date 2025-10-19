@@ -26,6 +26,7 @@ import {
   People,
   Receipt,
   Logout,
+  RequestPage,
 } from '@mui/icons-material'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -102,6 +103,11 @@ const MainLayout = () => {
           text: 'Quản lý giao dịch',
           icon: <Receipt />,
           path: '/admin/transactions',
+        },
+        {
+          text: 'Yêu cầu nạp tiền',
+          icon: <RequestPage />,
+          path: '/admin/topup-requests',
         },
       ]
     }

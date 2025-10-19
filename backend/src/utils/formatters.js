@@ -67,12 +67,12 @@ const formatTransaction = (transaction) => {
   };
 };
 
-const formatTopupRequest = (request, overrides = {}) => {
+const formatTopupRequest = (request, options = {}) => {
   if (!request) {
     return null;
   }
 
-  return {
+  const result = {
     id: request._id,
     referenceNumber: request.referenceNumber,
     amount: toPlainNumber(request.amount),
@@ -82,9 +82,41 @@ const formatTopupRequest = (request, overrides = {}) => {
     createdAt: request.createdAt,
     processedAt: request.processedAt,
     rejectionReason: request.rejectionReason,
-    currency: overrides.currency || request.currency || 'VND',
-    ...overrides
+    currency: options.currency || request.currency || 'VND'
   };
+
+  // Include user information if populated
+  if (options.includeUser && request.userId) {
+    if (typeof request.userId === 'object') {
+      const profile = request.userId.profile || {};
+      result.user = {
+        id: request.userId._id,
+        studentId: request.userId.studentId,
+        email: request.userId.email,
+        fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
+      };
+    } else {
+      result.userId = request.userId;
+    }
+  } else {
+    result.userId = request.userId?._id || request.userId;
+  }
+
+  // Include processedBy information if populated
+  if (request.processedBy) {
+    if (typeof request.processedBy === 'object') {
+      const profile = request.processedBy.profile || {};
+      result.processedBy = {
+        id: request.processedBy._id,
+        studentId: request.processedBy.studentId,
+        fullName: `${profile.firstName || ''} ${profile.lastName || ''}`.trim()
+      };
+    } else {
+      result.processedBy = { id: request.processedBy };
+    }
+  }
+
+  return result;
 };
 
 module.exports = {

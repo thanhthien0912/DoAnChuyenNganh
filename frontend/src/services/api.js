@@ -81,14 +81,19 @@ export const transactionAPI = {
 
 // Admin API
 export const adminAPI = {
-  getUsers: (params) => api.get('/auth/admin/users', { params }),
-  createUser: (userData) => api.post('/auth/admin/create-user', userData),
-  updateUser: (userId, userData) => api.put(`/auth/admin/users/${userId}`, userData),
-  deactivateUser: (userId) => api.put(`/auth/admin/users/${userId}/deactivate`),
+  getUsers: (params) => api.get('/admin/users', { params }),
+  createUser: (userData) => api.post('/admin/users', userData),
+  updateUser: (userId, userData) => api.put(`/admin/users/${userId}`, userData),
+  deactivateUser: (userId) => api.delete(`/admin/users/${userId}`),
   getAllTransactions: (params) => api.get('/transactions/admin/all', { params }),
   processRefund: (refundData) => api.post('/transactions/admin/refund', refundData),
   updateTransactionStatus: (transactionId, statusData) => api.put(`/transactions/admin/${transactionId}/status`, statusData),
   getDashboardStats: () => api.get('/transactions/admin/dashboard-stats'),
+  // Topup request management
+  getTopupRequests: (params) => api.get('/admin/topup-requests', { params }),
+  getPendingTopupCount: () => api.get('/admin/topup-requests/pending/count'),
+  approveTopupRequest: (requestId) => api.put(`/admin/topup-requests/${requestId}/approve`),
+  rejectTopupRequest: (requestId, reason) => api.put(`/admin/topup-requests/${requestId}/reject`, { reason }),
 }
 
 export default api
