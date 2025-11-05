@@ -104,6 +104,26 @@ class CardController {
       });
     }
   }
+
+  async generateWriteData(req, res) {
+    try {
+      const data = await cardService.generateCardWriteData(req.user._id);
+      res.json({
+        success: true,
+        message: 'Dữ liệu ghi thẻ đã được tạo',
+        data
+      });
+    } catch (error) {
+      logger.error('Generate write data error:', error.message);
+      res.status(500).json({
+        success: false,
+        error: {
+          code: 'GENERATE_WRITE_DATA_ERROR',
+          message: error.message
+        }
+      });
+    }
+  }
 }
 
 module.exports = new CardController();

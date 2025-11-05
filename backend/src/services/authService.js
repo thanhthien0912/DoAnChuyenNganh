@@ -355,6 +355,23 @@ class AuthService {
       throw error;
     }
   }
+
+  // Admin: Delete user by ID (hard delete with cascade)
+  async deleteUser(userId) {
+    try {
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      await userRepository.deleteUser(userId);
+      logger.info(`User permanently deleted: ${user.studentId}`);
+      return { message: 'User deleted successfully' };
+    } catch (error) {
+      logger.error('Delete user error:', error.message);
+      throw error;
+    }
+  }
 }
 
 module.exports = new AuthService();

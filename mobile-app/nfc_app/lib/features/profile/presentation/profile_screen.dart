@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../application/profile_controller.dart';
@@ -35,6 +36,34 @@ class ProfileScreen extends ConsumerWidget {
               _InfoTile(label: 'Lớp', value: profile.className),
               _InfoTile(label: 'Trạng thái', value: profile.accountStatus),
               const SizedBox(height: 24),
+              Card(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.credit_card,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  title: Text(
+                    'Ghi thẻ sinh viên',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Ghi thông tin sinh viên lên thẻ NFC',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                  onTap: () => context.push('/write-card'),
+                ),
+              ),
+              const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: () => ref.read(authControllerProvider.notifier).logout(),
                 icon: const Icon(Icons.logout),

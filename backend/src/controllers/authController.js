@@ -300,7 +300,7 @@ class AuthController {
     }
   }
 
-  // Admin: Deactivate user
+  // Admin: Deactivate user (soft delete - set isActive to false)
   async deactivateUser(req, res) {
     try {
       const user = await authService.deactivateUser(req.params.id);
@@ -328,6 +328,28 @@ class AuthController {
         success: false,
         error: {
           code: 'DEACTIVATE_USER_ERROR',
+          message: error.message
+        }
+      });
+    }
+  }
+
+  // Admin: Delete user permanently (hard delete with cascade)
+  async deleteUser(req, res) {
+    try {
+      const result = await authService.deleteUser(req.params.id);
+
+      res.json({
+        success: true,
+        message: result.message
+      });
+    } catch (error) {
+      logger.error('Delete user error:', error.message);
+      const statusCode = error.message === 'User not found' ? 404 : 500;
+      res.status(statusCode).json({
+        success: false,
+        error: {
+          code: 'DELETE_USER_ERROR',
           message: error.message
         }
       });
