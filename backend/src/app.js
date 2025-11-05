@@ -44,7 +44,9 @@ app.use(limiter);
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+  origin: process.env.NODE_ENV === 'development' 
+    ? true // Allow all origins in development (for mobile app testing)
+    : (process.env.CORS_ORIGIN || 'http://localhost:3001'),
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true

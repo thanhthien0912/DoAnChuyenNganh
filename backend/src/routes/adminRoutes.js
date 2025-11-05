@@ -10,7 +10,7 @@ router.post('/users', authenticate, adminOnly, adminValidation.createUser, authC
 router.get('/users', authenticate, adminOnly, authController.getAllUsers);
 router.get('/users/:id', authenticate, adminOnly, authController.getUserById);
 router.put('/users/:id', authenticate, adminOnly, authController.updateUser);
-router.delete('/users/:id', authenticate, adminOnly, authController.deactivateUser);
+router.delete('/users/:id', authenticate, adminOnly, authController.deleteUser);
 
 // Admin topup request management
 router.get('/topup-requests', authenticate, adminOnly, adminTopupController.getAllTopupRequests);

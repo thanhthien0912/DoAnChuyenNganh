@@ -1,6 +1,8 @@
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import '../../../core/providers.dart';
+import '../../auth/application/auth_controller.dart';
+import '../../auth/domain/auth_state.dart';
 import '../domain/home_summary.dart';
 import '../infrastructure/home_repository.dart';
 
@@ -16,6 +18,14 @@ final homeControllerProvider = AsyncNotifierProvider<HomeController, HomeSummary
 class HomeController extends AsyncNotifier<HomeSummary> {
   @override
   Future<HomeSummary> build() async {
+    // Watch auth state to rebuild when user changes
+    final authState = ref.watch(authControllerProvider);
+    
+    // Only fetch if authenticated
+    if (authState.status != AuthStatus.authenticated) {
+      throw Exception('Not authenticated');
+    }
+    
     final repo = ref.watch(homeRepositoryProvider);
     return repo.fetchHomeSummary();
   }

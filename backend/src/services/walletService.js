@@ -91,7 +91,7 @@ class WalletService {
         },
         quickActions: [
           { key: 'TOPUP', label: 'Nạp tiền', route: '/topup' },
-          { key: 'NFC', label: 'Quét NFC', route: '/nfc' },
+          { key: 'NFC', label: 'Ghi thẻ', route: '/write-card' },
           { key: 'HISTORY', label: 'Lịch sử', route: '/transactions' }
         ],
         stats: {

@@ -75,6 +75,10 @@ class AuthController extends StateNotifier<AuthState> {
       // ignore logout errors
     } finally {
       await _tokenStorage.clear();
+      
+      // Invalidate all providers to reset state
+      _ref.invalidate(apiClientProvider);
+      
       state = AuthState.unauthenticated();
     }
   }

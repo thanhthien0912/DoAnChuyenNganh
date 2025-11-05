@@ -5,6 +5,7 @@ import '../features/auth/application/auth_controller.dart';
 import '../features/auth/domain/auth_state.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/splash_screen.dart';
+import '../features/card/presentation/write_card_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/nfc/presentation/nfc_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
@@ -84,6 +85,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/nfc',
         name: 'nfc',
         builder: (context, state) => const NfcScreen(),
+      ),
+      GoRoute(
+        path: '/write-card',
+        name: 'write-card',
+        builder: (context, state) => const WriteCardScreen(),
       ),
     ],
   );

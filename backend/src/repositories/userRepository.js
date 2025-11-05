@@ -59,6 +59,24 @@ class UserRepository extends BaseRepository {
   deactivateUser(id) {
     return this.updateById(id, { isActive: false });
   }
+
+  async deleteUser(id) {
+    const Wallet = require('../models/Wallet');
+    const Transaction = require('../models/Transaction');
+    const TopupRequest = require('../models/TopupRequest');
+    const Token = require('../models/Token');
+
+    // Delete all related data
+    await Promise.all([
+      Wallet.deleteMany({ userId: id }),
+      Transaction.deleteMany({ userId: id }),
+      TopupRequest.deleteMany({ userId: id }),
+      Token.deleteMany({ userId: id })
+    ]);
+
+    // Delete user
+    return this.deleteById(id);
+  }
 }
 
 module.exports = new UserRepository();

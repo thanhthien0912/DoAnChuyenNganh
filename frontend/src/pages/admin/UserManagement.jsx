@@ -102,13 +102,14 @@ const UserManagement = () => {
   }
 
   const handleDeactivateUser = async (userId) => {
-    if (window.confirm('Bạn có chắc muốn vô hiệu hóa người dùng này?')) {
+    if (window.confirm('Bạn có chắc muốn xóa người dùng này? Dữ liệu sẽ bị xóa vĩnh viễn và không thể khôi phục!')) {
       try {
         await adminAPI.deactivateUser(userId)
-        showSnackbar('Vô hiệu hóa người dùng thành công!', 'success')
+        showSnackbar('Xóa người dùng thành công!', 'success')
         loadUsers()
       } catch (error) {
-        showSnackbar('Vô hiệu hóa người dùng thất bại', 'error')
+        console.error('Delete user error:', error)
+        showSnackbar(error.response?.data?.error?.message || 'Xóa người dùng thất bại', 'error')
       }
     }
   }

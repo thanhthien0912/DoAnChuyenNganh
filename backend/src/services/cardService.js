@@ -1,4 +1,6 @@
+const crypto = require('crypto');
 const cardRepository = require('../repositories/cardRepository');
+const userRepository = require('../repositories/userRepository');
 const logger = require('../utils/logger');
 
 const ALLOWED_STATUS = ['ACTIVE', 'LOCKED'];
@@ -90,6 +92,82 @@ class CardService {
       return cardRepository.findById(cardId);
     } catch (error) {
       logger.error('Set primary card error:', error.message);
+      throw error;
+    }
+  }
+
+  async generateCardWriteData(userId) {
+    try {
+      const user = await userRepository.findById(userId);
+      if (!user) {
+        throw new Error('Không tìm thấy người dùng');
+      }
+
+      const studentId = user.studentId;
+      const fullName = `${user.profile.firstName || ''} ${user.profile.lastName || ''}`.trim();
+      const timestamp = Date.now();
+      const cardId = `CARD-${userId.toString().slice(-8)}-${timestamp}`;
+
+      // Generate signature: HMAC-SHA256(studentId + fullName + cardId)
+      const dataToSign = `${studentId}|${fullName}|${cardId}`;
+      const signature = crypto
+        .createHmac('sha256', process.env.NFC_SECURITY_KEY || 'default_nfc_key')
+        .update(dataToSign)
+        .digest('hex')
+        .substring(0, 16); // Use first 16 characters for shorter signature
+
+      // Format: STUDENT_CARD|MSSV|FullName|CardID|Signature
+      const writeData = `STUDENT_CARD|${studentId}|${fullName}|${cardId}|${signature}`;
+
+      logger.info(`Generated card write data for user ${userId}`);
+
+      return {
+        writeData,
+        studentId,
+        fullName,
+        cardId,
+        signature,
+        instructions: [
+          'Chạm thẻ NFC vào điện thoại',
+          'Dữ liệu sẽ được ghi tự động',
+          'Thẻ có thể dùng để thanh toán sau khi liên kết'
+        ]
+      };
+    } catch (error) {
+      logger.error('Generate card write data error:', error.message);
+      throw error;
+    }
+  }
+
+  verifyCardData(writeData) {
+    try {
+      const parts = writeData.split('|');
+      if (parts.length !== 5 || parts[0] !== 'STUDENT_CARD') {
+        throw new Error('Dữ liệu thẻ không hợp lệ');
+      }
+
+      const [, studentId, fullName, cardId, signature] = parts;
+
+      // Verify signature
+      const dataToSign = `${studentId}|${fullName}|${cardId}`;
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.NFC_SECURITY_KEY || 'default_nfc_key')
+        .update(dataToSign)
+        .digest('hex')
+        .substring(0, 16);
+
+      if (signature !== expectedSignature) {
+        throw new Error('Chữ ký thẻ không hợp lệ');
+      }
+
+      return {
+        valid: true,
+        studentId,
+        fullName,
+        cardId
+      };
+    } catch (error) {
+      logger.error('Verify card data error:', error.message);
       throw error;
     }
   }

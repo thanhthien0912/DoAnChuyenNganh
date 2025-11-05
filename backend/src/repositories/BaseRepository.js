@@ -58,6 +58,18 @@ class BaseRepository {
     return query;
   }
 
+  deleteById(id, options = {}) {
+    return this.model.findByIdAndDelete(id, options);
+  }
+
+  deleteOne(filter, options = {}) {
+    return this.model.findOneAndDelete(filter, options);
+  }
+
+  deleteMany(filter, options = {}) {
+    return this.model.deleteMany(filter, options);
+  }
+
   applyQueryOptions(query, options) {
     const {
       select,
