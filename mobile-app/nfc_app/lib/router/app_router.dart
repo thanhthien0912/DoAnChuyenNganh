@@ -8,6 +8,12 @@ import '../features/auth/presentation/splash_screen.dart';
 import '../features/card/presentation/write_card_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/nfc/presentation/nfc_screen.dart';
+import '../features/pos/domain/pos_category.dart';
+import '../features/pos/domain/pos_item.dart';
+import '../features/pos/presentation/favorite_transactions_screen.dart';
+import '../features/pos/presentation/pos_category_screen.dart';
+import '../features/pos/presentation/pos_confirmation_screen.dart';
+import '../features/pos/presentation/pos_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/topup/presentation/topup_screen.dart';
 import '../features/transactions/presentation/transaction_detail_screen.dart';
@@ -90,6 +96,39 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: '/write-card',
         name: 'write-card',
         builder: (context, state) => const WriteCardScreen(),
+      ),
+      GoRoute(
+        path: '/pos',
+        name: 'pos',
+        builder: (context, state) => const POSScreen(),
+      ),
+      GoRoute(
+        path: '/pos/categories/:categoryKey',
+        name: 'pos-category',
+        builder: (context, state) {
+          final category = state.extra as POSCategory;
+          return POSCategoryScreen(category: category);
+        },
+      ),
+      GoRoute(
+        path: '/pos/confirmation',
+        name: 'pos-confirmation',
+        builder: (context, state) {
+          final data = state.extra as Map<String, dynamic>;
+          final items = data['items'] as List<Map<String, dynamic>>;
+          final categoryKey = data['categoryKey'] as String;
+          final totalAmount = data['totalAmount'] as double;
+          return POSConfirmationScreen(
+            items: items,
+            categoryKey: categoryKey,
+            totalAmount: totalAmount,
+          );
+        },
+      ),
+      GoRoute(
+        path: '/pos/favorites',
+        name: 'pos-favorites',
+        builder: (context, state) => const FavoriteTransactionsScreen(),
       ),
     ],
   );

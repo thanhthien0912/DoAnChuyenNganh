@@ -201,7 +201,7 @@ flutter pub get
 
 # Chạy app trên emulator hoặc device
 flutter run
-flutter run --dart-define=API_BASE_URL=http://192.168.1.68:3000/api
+flutter run --dart-define=API_BASE_URL=http://192.168.1.91:3000/api
 # Build APK cho Android
 flutter build apk
 
@@ -247,14 +247,24 @@ flutter clean              # Clean build artifacts
 #### Xác thực và Bảo mật
 - ✅ Đăng ký tài khoản với email sinh viên
 - ✅ Đăng nhập với JWT authentication
+- ✅ Auto-refresh state khi switch user (fix stale data)
 - 🔄 Xác thực sinh trắc học (Face ID, Fingerprint)
 - 🔄 Quên mật khẩu và reset qua email
 
 #### Quản lý Ví
 - ✅ Xem số dư ví thời gian thực
-- 🔄 Nạp tiền vào ví (chuyển khoản, thẻ)
+- ✅ Home dashboard với quick actions
+- 🔄 Nạp tiền vào ví (yêu cầu admin approve)
 - 🔄 Kiểm tra giới hạn chi tiêu (ngày/tháng)
 - 🔄 Lịch sử giao dịch chi tiết với bộ lọc
+
+#### Ghi thẻ NFC (NEW - ✅ Hoàn thành)
+- ✅ **Tự động ghi thẻ sinh viên** không cần admin
+- ✅ Generate dữ liệu thẻ với HMAC-SHA256 signature
+- ✅ Ghi NDEF record lên thẻ NFC
+- ✅ Auto-link thẻ với tài khoản sau khi ghi
+- ✅ Bảo mật: Signature verification để chống giả mạo
+- ✅ UI: Tự động load thông tin, button to rõ ràng
 
 #### Thanh toán NFC
 - 🔄 Thanh toán không tiếp xúc tại các điểm bán hàng
@@ -264,6 +274,7 @@ flutter clean              # Clean build artifacts
 
 #### Quản lý Thông tin
 - ✅ Xem và cập nhật thông tin cá nhân
+- ✅ Profile screen với navigation đến Write Card
 - 🔄 Thay đổi mật khẩu
 - 🔄 Cài đặt thông báo
 - 🔄 Quản lý thiết bị đăng nhập
@@ -278,7 +289,8 @@ flutter clean              # Clean build artifacts
 
 #### Quản lý Sinh viên
 - ✅ Danh sách sinh viên với tìm kiếm và lọc
-- 🔄 Thêm, sửa, xóa tài khoản sinh viên
+- ✅ Thêm, sửa tài khoản sinh viên
+- ✅ **Xóa người dùng** (hard delete với cascade: Wallet, Transaction, TopupRequest, Token)
 - 🔄 Xem chi tiết ví và lịch sử giao dịch
 - 🔄 Khóa/mở khóa tài khoản
 - 🔄 Reset mật khẩu
@@ -303,8 +315,11 @@ flutter clean              # Clean build artifacts
 - ✅ `/api/wallet/*` - Wallet management (balance, limits, topup)
 - ✅ `/api/transactions/*` - Transaction processing (payment, history, stats)
 - ✅ `/api/cards/*` - Card management (register, update, delete)
+  - ✅ `GET /api/cards/generate-write-data` - Generate card write data với signature
+  - ✅ `POST /api/cards` - Link card to user account
+- ✅ `/api/admin/*` - Admin operations (user management, topup approval)
+  - ✅ `DELETE /api/admin/users/:id` - Hard delete user với cascade
 - 🔄 `/api/users/*` - User management (profile, settings)
-- 🔄 `/api/admin/*` - Admin operations (reports, analytics)
 
 #### Security Features
 - ✅ JWT-based authentication với refresh tokens
@@ -313,7 +328,10 @@ flutter clean              # Clean build artifacts
 - ✅ Rate limiting để chống DDoS
 - ✅ Helmet middleware cho HTTP security
 - ✅ Input validation và sanitization
-- 🔄 Request logging và monitoring
+- ✅ **HMAC-SHA256 signature** cho NFC card security
+- ✅ **CORS configuration** hỗ trợ mobile development
+- ✅ Request logging với Winston
+- 🔄 Advanced fraud detection
 
 #### Database Models
 - ✅ User: Thông tin người dùng với role-based authentication
@@ -322,6 +340,12 @@ flutter clean              # Clean build artifacts
 - ✅ Card: Thông tin thẻ NFC
 - 🔄 Merchant: Thông tin điểm bán hàng
 - 🔄 Category: Danh mục giao dịch
+
+**Recent Updates (05/11/2025):**
+- ✅ NFC Card Write Feature - Sinh viên tự ghi thẻ với signature security
+- ✅ State Management Fix - Auto-refresh khi switch user
+- ✅ User Hard Delete - Cascade delete toàn bộ dữ liệu liên quan
+- ✅ CORS Fix - Mobile app development support
 
 **Chú thích:**
 - ✅ = Đã hoàn thành
@@ -387,7 +411,13 @@ flutter clean              # Clean build artifacts
 
 API documentation được tự động sinh bằng Swagger và có thể truy cập tại:
 ```
-http://localhost:5000/api-docs
+http://localhost:3000/api-docs
+```
+
+### Key API Guides
+- **NFC_CARD_WRITE_GUIDE.md** - Hướng dẫn chi tiết về tính năng ghi thẻ NFC
+- **MOBILE_DEBUG_GUIDE.md** - Debug guide cho mobile app development
+- **STATE_MANAGEMENT_FIX.md** - Technical documentation về state management fixes
 
 ## Quy trình phát triển
 

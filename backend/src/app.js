@@ -17,6 +17,7 @@ const transactionRoutes = require('./routes/transactionRoutes');
 const walletRoutes = require('./routes/walletRoutes');
 const cardRoutes = require('./routes/cardRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const posRoutes = require('./routes/posRoutes');
 
 const app = express();
 
@@ -80,6 +81,7 @@ app.use('/api/transactions', transactionRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/cards', cardRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/pos', posRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

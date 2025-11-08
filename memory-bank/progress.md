@@ -2,6 +2,29 @@
 
 ## Completed Tasks ✅
 
+### Latest Updates (05/11/2025)
+- ✅ **NFC Card Write Feature**: Sinh viên tự ghi thẻ NFC với HMAC-SHA256 signature
+  - Backend API: `GET /api/cards/generate-write-data` với signature verification
+  - Mobile WriteCardScreen: Tự động load và ghi thẻ NFC
+  - Security: HMAC-SHA256 signature để xác thực thẻ
+  - Auto-link card sau khi ghi thành công
+- ✅ **State Management Fix**: Sửa vấn đề state không reset khi đăng xuất/đăng nhập
+  - AuthController: Invalidate providers khi logout
+  - HomeController: Watch auth state để rebuild
+  - ProfileController: Refactor sang AsyncNotifier
+  - WriteCardController: Reset logs khi user thay đổi
+- ✅ **User Management Enhancement**: Hard delete user với cascade delete
+  - Delete user xóa luôn: Wallet, Transaction, TopupRequest, Token
+  - Update UI thông báo cho admin
+  - BaseRepository: Thêm deleteById, deleteOne, deleteMany methods
+- ✅ **CORS Configuration**: Support mobile app development
+  - Allow all origins trong development mode
+  - Mobile app có thể kết nối backend từ emulator/device
+- ✅ **Documentation Updates**:
+  - NFC_CARD_WRITE_GUIDE.md: Hướng dẫn chi tiết ghi thẻ NFC
+  - STATE_MANAGEMENT_FIX.md: Technical doc về state management
+  - MOBILE_DEBUG_GUIDE.md: Debug guide cho mobile app
+
 ### Phase 1: Foundation Setup (27/09/2025)
 - ✅ **Project Rules Document**: Hoàn thiện file rule.md với các quy tắc phát triển
 - ✅ **Memory Bank Structure**: Tạo folder memory-bank theo chuẩn
