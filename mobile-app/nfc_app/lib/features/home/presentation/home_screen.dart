@@ -119,6 +119,8 @@ class HomeScreen extends ConsumerWidget {
     switch (key.toUpperCase()) {
       case 'TOPUP':
         return Icons.add_circle_outline;
+      case 'POS':
+        return Icons.point_of_sale;
       case 'NFC':
         return Icons.nfc;
       case 'HISTORY':

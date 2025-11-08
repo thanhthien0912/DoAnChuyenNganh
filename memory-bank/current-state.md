@@ -1,8 +1,10 @@
 # Current Project State: Memory Bank Update
 
-## Tổng quan trạng thái dự án (05/10/2025)
+## Tổng quan trạng thái dự án (05/11/2025)
 
-Dự án Nền tảng Ví điện tử Sinh viên đã tiến triển vượt bậc so với kế hoạch ban đầu. Hiện tại đã hoàn thành cơ sở hạ tầng hoàn chỉnh cho cả 3 thành phần chính: Backend API, Frontend Web, và Mobile App.
+Dự án Nền tảng Ví điện tử Sinh viên đã tiến triển vượt bậc so với kế hoạch ban đầu. Hiện tại đã hoàn thành cơ sở hạ tầng hoàn chỉnh cho cả 3 thành phần chính: Backend API, Frontend Web, và Mobile App. 
+
+**Latest milestone:** Hoàn thành tính năng ghi thẻ NFC tự động cho sinh viên với signature-based security và fix các vấn đề critical về state management.
 
 ## Kiến trúc hiện tại
 
@@ -190,6 +192,10 @@ lib/
 - ✅ API documentation với Swagger
 - ✅ Error handling và logging
 - ✅ Input validation và sanitization
+- ✅ **Hard delete user với cascade delete** (Wallet, Transaction, TopupRequest, Token)
+- ✅ **NFC Card Write API** với HMAC-SHA256 signature generation
+- ✅ **Card verification service** để validate thẻ NFC
+- ✅ **CORS configuration** hỗ trợ mobile app development
 
 ### Frontend
 - ✅ React app với role-based routing
@@ -208,30 +214,42 @@ lib/
 - ✅ API client setup với Dio
 - ✅ Secure storage implementation
 - ✅ NFC capability integration
+- ✅ **Write Card Screen** - Ghi thẻ NFC tự động cho sinh viên
+  - Auto-load thông tin sinh viên khi vào màn hình
+  - Generate signature-based card data từ backend
+  - Write NDEF record lên thẻ NFC
+  - Auto-link card với user account
+- ✅ **State Management Fixes**
+  - HomeController: Auto-rebuild khi auth state thay đổi
+  - ProfileController: Refactored sang AsyncNotifier
+  - WriteCardController: Reset state khi user logout/switch
+  - Auth-aware providers để prevent stale data
 
 ## Next Immediate Tasks
 
-1. **Complete API Integration**
-   - Connect frontend components với backend APIs
-   - Implement real-time updates cho transactions
-   - Add error handling cho API failures
+1. **NFC Payment Processing**
+   - Implement verify card data endpoint
+   - Create payment processing flow với NFC
+   - Add transaction confirmation screen
+   - Test với physical NFC cards
 
-2. **Enhance Mobile App**
-   - Complete remaining screens (wallet, transactions, profile)
-   - Implement NFC payment flow
-   - Add biometric authentication
+2. **Complete Mobile App Features**
+   - Complete wallet screen với balance display
+   - Finish transaction history với filters
+   - Add topup request functionality
+   - Implement profile editing
 
 3. **Testing & Validation**
-   - Unit tests cho backend services
-   - Integration tests cho API endpoints
-   - UI tests cho frontend components
-   - Manual testing cho NFC functionality
+   - Test NFC write flow với multiple devices
+   - Test state management fixes với multiple users
+   - Integration tests cho card API endpoints
+   - Manual testing cho complete user journey
 
 4. **Security Hardening**
-   - Input sanitization validation
-   - Rate limiting implementation
-   - SQL injection prevention
-   - XSS protection
+   - Review signature generation algorithm
+   - Add rate limiting cho card generation endpoint
+   - Implement card expiry mechanism
+   - Add fraud detection patterns
 
 ## Technical Debt & Improvements Needed
 
