@@ -7,6 +7,7 @@ import '../../../shared/utils/currency_formatter.dart';
 import '../../../shared/widgets/async_value_widget.dart';
 import '../../transactions/domain/transaction.dart';
 import '../application/home_controller.dart';
+import 'widgets/card_management_widget.dart';
 
 final _balanceVisibleProvider = StateProvider<bool>((ref) => true);
 
@@ -64,13 +65,11 @@ class HomeScreen extends ConsumerWidget {
                                 },
                               ),
                               const Spacer(),
-                              Chip(
-                                label: Text(summary.cardStatusLabel),
-                                avatar: Icon(
-                                  Icons.nfc,
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                                ),
-                              )
+                              CardManagementWidget(
+                                primaryCard: summary.primaryCard,
+                                studentId: summary.studentId,
+                                fullName: summary.userName,
+                              ),
                             ],
                           ),
                           const SizedBox(height: 12),

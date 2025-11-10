@@ -27,6 +27,7 @@ import {
   Receipt,
   Logout,
   RequestPage,
+  CreditCard,
 } from '@mui/icons-material'
 import { useAuth } from '../../contexts/AuthContext'
 
@@ -98,6 +99,11 @@ const MainLayout = () => {
           text: 'Quản lý người dùng',
           icon: <People />,
           path: '/admin/users',
+        },
+        {
+          text: 'Quản lý thẻ NFC',
+          icon: <CreditCard />,
+          path: '/admin/cards',
         },
         {
           text: 'Quản lý giao dịch',

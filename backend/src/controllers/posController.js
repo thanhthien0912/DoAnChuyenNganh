@@ -3,6 +3,7 @@ const POSItem = require('../models/POSItem');
 const FavoriteTransaction = require('../models/FavoriteTransaction');
 const Transaction = require('../models/Transaction');
 const Wallet = require('../models/Wallet');
+const cardService = require('../services/cardService');
 const logger = require('../utils/logger');
 const mongoose = require('mongoose');
 
@@ -62,7 +63,30 @@ class POSController {
   async processTransaction(req, res) {
     try {
       const { itemId, quantity, categoryKey, nfcData } = req.body;
-      const userId = req.user._id;
+      const authenticatedUserId = req.user._id;
+
+      // Determine userId based on NFC data
+      let userId;
+      if (nfcData?.deviceId) {
+        // Payment from scanned card
+        try {
+          userId = await cardService.getUserByCardUid(nfcData.deviceId);
+          logger.info('POS Transaction via NFC card:', {
+            cardUid: nfcData.deviceId,
+            cardOwner: userId.toString(),
+            authenticatedUser: authenticatedUserId.toString()
+          });
+        } catch (cardError) {
+          logger.error('Card validation error:', cardError.message);
+          throw cardError;
+        }
+      } else {
+        // Fallback: Payment from authenticated user
+        userId = authenticatedUserId;
+        logger.info('POS Transaction via authenticated user:', {
+          userId: userId.toString()
+        });
+      }
 
       logger.info('POS Transaction Request:', {
         itemId,

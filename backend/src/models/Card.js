@@ -42,6 +42,13 @@ const cardSchema = new mongoose.Schema({
   metadata: {
     deviceModel: { type: String, trim: true },
     issuer: { type: String, trim: true }
+  },
+  isLocked: {
+    type: Boolean,
+    default: false
+  },
+  lockedAt: {
+    type: Date
   }
 }, {
   timestamps: true

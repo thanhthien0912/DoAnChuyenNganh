@@ -94,6 +94,10 @@ export const adminAPI = {
   getPendingTopupCount: () => api.get('/admin/topup-requests/pending/count'),
   approveTopupRequest: (requestId) => api.put(`/admin/topup-requests/${requestId}/approve`),
   rejectTopupRequest: (requestId, reason) => api.put(`/admin/topup-requests/${requestId}/reject`, { reason }),
+  // Card management
+  getCards: (params) => api.get('/admin/cards', { params }),
+  deleteCard: (cardId) => api.delete(`/admin/cards/${cardId}`),
+  unlockCard: (cardId) => api.patch(`/admin/cards/${cardId}/unlock`),
 }
 
 export default api

@@ -13,8 +13,10 @@ class CardController {
           alias: card.alias,
           status: card.status,
           isPrimary: card.isPrimary,
+          isLocked: card.isLocked,
           linkedAt: card.linkedAt,
-          lastUsedAt: card.lastUsedAt
+          lastUsedAt: card.lastUsedAt,
+          lockedAt: card.lockedAt
         }))
       });
     } catch (error) {
@@ -31,6 +33,9 @@ class CardController {
 
   async linkCard(req, res) {
     try {
+      logger.info('LinkCard controller - Request body:', JSON.stringify(req.body));
+      logger.info('LinkCard controller - User:', req.user._id);
+      
       const card = await cardService.linkCard(req.user._id, req.body);
       res.status(201).json({
         success: true,
@@ -45,7 +50,11 @@ class CardController {
         }
       });
     } catch (error) {
-      logger.error('Link card error:', error.message);
+      logger.error('Link card controller error:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
       res.status(400).json({
         success: false,
         error: {
@@ -119,6 +128,75 @@ class CardController {
         success: false,
         error: {
           code: 'GENERATE_WRITE_DATA_ERROR',
+          message: error.message
+        }
+      });
+    }
+  }
+
+  async toggleCardLock(req, res) {
+    try {
+      const { lock, password } = req.body;
+      // Convert string to boolean if needed
+      const lockBoolean = typeof lock === 'string' ? lock === 'true' : lock;
+      
+      logger.info('Toggle card lock - userId:', req.user._id, 'cardId:', req.params.id, 'lock:', lockBoolean, 'hasPassword:', !!password);
+      
+      const card = await cardService.toggleCardLock(
+        req.user._id,
+        req.params.id,
+        lockBoolean,
+        password
+      );
+      res.json({
+        success: true,
+        message: lock ? 'Đã khóa thẻ' : 'Đã mở khóa thẻ',
+        data: {
+          id: card._id,
+          uid: card.uid,
+          alias: card.alias,
+          status: card.status,
+          isPrimary: card.isPrimary,
+          isLocked: card.isLocked,
+          lockedAt: card.lockedAt
+        }
+      });
+    } catch (error) {
+      logger.error('Toggle card lock controller error:', {
+        message: error.message,
+        stack: error.stack,
+        userId: req.user._id,
+        cardId: req.params.id
+      });
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'TOGGLE_LOCK_ERROR',
+          message: error.message || 'Lỗi không xác định'
+        }
+      });
+    }
+  }
+
+  async deleteCard(req, res) {
+    try {
+      const { password } = req.body;
+      const result = await cardService.deleteCard(
+        req.user._id,
+        req.params.id,
+        password
+      );
+      res.json({
+        success: true,
+        message: 'Đã xóa thẻ thành công',
+        data: result
+      });
+    } catch (error) {
+      logger.error('Delete card error:', error.message);
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'DELETE_CARD_ERROR',
           message: error.message
         }
       });
