@@ -196,12 +196,17 @@ lib/
 - ✅ **NFC Card Write API** với HMAC-SHA256 signature generation
 - ✅ **Card verification service** để validate thẻ NFC
 - ✅ **CORS configuration** hỗ trợ mobile app development
+- ✅ **Daily/Monthly Spent Fix**: Logic cộng dồn chi tiêu hoạt động đúng
+- ✅ **Wallet Model Enhancement**: Thêm field lastTransactionDate và processTransaction method
 
 ### Frontend
 - ✅ React app với role-based routing
 - ✅ Authentication flows (login/register)
 - ✅ Student interface (dashboard, wallet, transactions, profile)
+- ✅ **Student Dashboard Enhancement**: Xóa nút nạp tiền/thanh toán, chỉ xem thông tin
+- ✅ **Student Wallet Enhancement**: Xóa giới hạn chi tiêu, chỉ hiện số tiền đã chi
 - ✅ Admin interface (dashboard, user management, transaction management)
+- ✅ **Admin Dashboard Enhancement**: Giao diện đẹp với gradient backgrounds, xóa Tổng ví/Thông tin hệ thống, thêm Doanh thu tháng
 - ✅ Material-UI components với responsive design
 - ✅ Form validation và error handling
 - ✅ Protected routes với authentication guards
@@ -224,6 +229,25 @@ lib/
   - ProfileController: Refactored sang AsyncNotifier
   - WriteCardController: Reset state khi user logout/switch
   - Auth-aware providers để prevent stale data
+
+## Recent Updates (10/11/2025)
+- ✅ **Fixed Daily/Monthly Spent Calculation**: Backend logic đã được sửa để cộng dồn đúng các giao dịch
+  - Thêm field lastTransactionDate vào Wallet schema
+  - Cập nhật method processTransaction() với reset logic
+  - Update lại database để tính toán lại dailySpent/monthlySpent
+  - Test xác nhận logic hoạt động: 40,000 + 15,000 = 55,000
+- ✅ **Removed Student Payment Features**: Xóa chức năng nạp tiền và thanh toán khỏi web sinh viên
+  - Dashboard.jsx: Xóa buttons "Nạp tiền" và "Thanh toán" + dialogs
+  - Wallet.jsx: Xóa buttons "Nạp tiền" và "Thanh toán" + dialogs
+  - Sinh viên chỉ có thể xem thông tin, không thể thực hiện giao dịch trực tiếp
+- ✅ **Removed Spending Limits Display**: Xóa hiển thị giới hạn chi tiêu ngày/tháng ở trang Wallet
+  - Chỉ hiện "Đã chi hôm nay" và "Đã chi tháng này" mà không có giới hạn
+- ✅ **Enhanced Admin Dashboard**: Làm đẹp lại giao diện admin dashboard
+  - Design hiện đại với gradient backgrounds và hover effects
+  - Xóa card "Tổng ví" và "Thông tin hệ thống"
+  - Thêm card "Doanh thu tháng này" với tính toán tự động
+  - Sử dụng LinearProgress bars để hiển thị tỷ lệ thanh toán/nạp tiền
+  - Hiển thị số tiền cụ thể thay vì định dạng "M" (triệu)
 
 ## Next Immediate Tasks
 

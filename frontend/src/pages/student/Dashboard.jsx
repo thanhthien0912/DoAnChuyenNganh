@@ -6,12 +6,6 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
 } from '@mui/material'
 import {
   AccountBalanceWallet,
@@ -28,11 +22,6 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true)
   const [stats, setStats] = useState(null)
   const [recentTransactions, setRecentTransactions] = useState([])
-  const [topupDialogOpen, setTopupDialogOpen] = useState(false)
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
-  const [topupAmount, setTopupAmount] = useState('')
-  const [paymentAmount, setPaymentAmount] = useState('')
-  const [paymentDescription, setPaymentDescription] = useState('')
   const { showSnackbar } = useSnackbar()
   const { wallet, refreshProfile } = useAuth()
 
@@ -56,39 +45,6 @@ const Dashboard = () => {
       showSnackbar('Không thể tải dữ liệu dashboard', 'error')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleTopup = async () => {
-    try {
-      await transactionAPI.processTopup({
-        amount: parseFloat(topupAmount),
-        description: 'Nạp tiền vào ví',
-      })
-
-      showSnackbar('Nạp tiền thành công!', 'success')
-      setTopupDialogOpen(false)
-      setTopupAmount('')
-      await loadDashboardData()
-    } catch (error) {
-      showSnackbar('Nạp tiền thất bại', 'error')
-    }
-  }
-
-  const handlePayment = async () => {
-    try {
-      await transactionAPI.processPayment({
-        amount: parseFloat(paymentAmount),
-        description: paymentDescription || 'Thanh toán',
-      })
-
-      showSnackbar('Thanh toán thành công!', 'success')
-      setPaymentDialogOpen(false)
-      setPaymentAmount('')
-      setPaymentDescription('')
-      await loadDashboardData()
-    } catch (error) {
-      showSnackbar('Thanh toán thất bại', 'error')
     }
   }
 
@@ -184,24 +140,6 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Action Buttons */}
-      <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => setTopupDialogOpen(true)}
-        >
-          Nạp tiền
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => setPaymentDialogOpen(true)}
-        >
-          Thanh toán
-        </Button>
-      </Box>
-
       {/* Recent Transactions */}
       <Card sx={{ mt: 3 }}>
         <CardContent>
@@ -244,64 +182,6 @@ const Dashboard = () => {
           )}
         </CardContent>
       </Card>
-
-      {/* Topup Dialog */}
-      <Dialog open={topupDialogOpen} onClose={() => setTopupDialogOpen(false)}>
-        <DialogTitle>Nạp tiền vào ví</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Số tiền (VND)"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={topupAmount}
-            onChange={(e) => setTopupAmount(e.target.value)}
-            inputProps={{ min: 1000, max: 10000000 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTopupDialogOpen(false)}>Hủy</Button>
-          <Button onClick={handleTopup} variant="contained">
-            Nạp tiền
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Payment Dialog */}
-      <Dialog open={paymentDialogOpen} onClose={() => setPaymentDialogOpen(false)}>
-        <DialogTitle>Thanh toán</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Số tiền (VND)"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={paymentAmount}
-            onChange={(e) => setPaymentAmount(e.target.value)}
-            inputProps={{ min: 1000, max: 10000000 }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Mô tả"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDescription}
-            onChange={(e) => setPaymentDescription(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPaymentDialogOpen(false)}>Hủy</Button>
-          <Button onClick={handlePayment} variant="contained" color="secondary">
-            Thanh toán
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }
