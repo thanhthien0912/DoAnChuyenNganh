@@ -63,6 +63,19 @@ class ProfileScreen extends ConsumerWidget {
                   onTap: () => context.push('/write-card'),
                 ),
               ),
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.lock),
+                  title: const Text(
+                    'Quản lý thẻ',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                  subtitle: const Text('Khóa/mở khóa thẻ NFC'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () => context.push('/cards'),
+                ),
+              ),
               const SizedBox(height: 16),
               FilledButton.icon(
                 onPressed: () => ref.read(authControllerProvider.notifier).logout(),

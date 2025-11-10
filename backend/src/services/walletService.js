@@ -76,6 +76,8 @@ class WalletService {
             alias: primaryCard.alias,
             status: primaryCard.status,
             isPrimary: primaryCard.isPrimary,
+            isLocked: primaryCard.isLocked || false,
+            lockedAt: primaryCard.lockedAt,
             statusLabel: cardStatusLabel
           } : null,
           list: cards.map(card => ({

@@ -23,7 +23,9 @@ class CardInfo {
     required this.alias,
     required this.status,
     required this.isPrimary,
+    required this.isLocked,
     this.statusLabel,
+    this.lockedAt,
   });
 
   final String id;
@@ -31,7 +33,9 @@ class CardInfo {
   final String alias;
   final String status;
   final bool isPrimary;
+  final bool isLocked;
   final String? statusLabel;
+  final DateTime? lockedAt;
 
   factory CardInfo.fromJson(Map<String, dynamic> json) {
     return CardInfo(
@@ -40,17 +44,36 @@ class CardInfo {
       alias: json['alias']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       isPrimary: json['isPrimary'] as bool? ?? false,
+      isLocked: json['isLocked'] as bool? ?? false,
       statusLabel: json['statusLabel']?.toString(),
+      lockedAt: json['lockedAt'] != null
+          ? DateTime.parse(json['lockedAt'] as String)
+          : null,
     );
+  }
+
+  String get maskedUid {
+    if (uid.length <= 8) return uid;
+    final parts = <String>[];
+    for (var i = 0; i < uid.length; i += 2) {
+      if (i + 2 <= uid.length) {
+        parts.add(uid.substring(i, i + 2));
+      } else {
+        parts.add(uid.substring(i));
+      }
+    }
+    return parts.join(':');
   }
 }
 
 class HomeSummary {
   const HomeSummary({
     required this.userName,
+    required this.studentId,
     required this.balance,
     required this.currency,
     required this.cardStatusLabel,
+    this.primaryCard,
     required this.quickActions,
     required this.recentTransactions,
     required this.dailyRemaining,
@@ -58,9 +81,11 @@ class HomeSummary {
   });
 
   final String userName;
+  final String studentId;
   final double balance;
   final String currency;
   final String cardStatusLabel;
+  final CardInfo? primaryCard;
   final List<HomeQuickAction> quickActions;
   final List<TransactionItem> recentTransactions;
   final double dailyRemaining;
@@ -68,6 +93,8 @@ class HomeSummary {
 
   factory HomeSummary.fromJson(Map<String, dynamic> json) {
     final cards = json['cards'] as Map<String, dynamic>?;
+    final primaryCardJson = cards?['primary'] as Map<String, dynamic>?;
+    
     final quickActionList = (json['quickActions'] as List<dynamic>? ?? [])
         .map((e) => HomeQuickAction.fromJson(e as Map<String, dynamic>))
         .toList();
@@ -77,9 +104,11 @@ class HomeSummary {
 
     return HomeSummary(
       userName: json['user']?['fullName']?.toString() ?? '',
+      studentId: json['user']?['studentId']?.toString() ?? '',
       balance: (json['wallet']?['balance'] as num?)?.toDouble() ?? 0,
       currency: json['wallet']?['currency']?.toString() ?? 'VND',
       cardStatusLabel: cards?['statusLabel']?.toString() ?? 'Chưa liên kết',
+      primaryCard: primaryCardJson != null ? CardInfo.fromJson(primaryCardJson) : null,
       quickActions: quickActionList,
       recentTransactions: recentTransactions,
       dailyRemaining: (json['stats']?['dailyRemaining'] as num?)?.toDouble() ?? 0,

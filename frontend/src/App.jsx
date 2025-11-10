@@ -19,6 +19,7 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 import UserManagement from './pages/admin/UserManagement'
 import TransactionManagement from './pages/admin/TransactionManagement'
 import TopupRequestManagement from './pages/admin/TopupRequestManagement'
+import CardManagement from './pages/admin/CardManagement'
 import NotFound from './pages/shared/NotFound'
 
 function App() {
@@ -82,6 +83,9 @@ function App() {
         } />
         <Route path="/admin/topup-requests" element={
           hasAdminAccess ? <TopupRequestManagement /> : <Navigate to={getFallbackPath()} replace />
+        } />
+        <Route path="/admin/cards" element={
+          hasAdminAccess ? <CardManagement /> : <Navigate to={getFallbackPath()} replace />
         } />
       </Route>
 

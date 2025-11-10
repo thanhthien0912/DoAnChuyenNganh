@@ -91,8 +91,14 @@ class _WriteCardScreenState extends ConsumerState<WriteCardScreen> {
                         value: state.cardData!.fullName,
                       ),
                       _InfoRow(
-                        label: 'Mã thẻ',
-                        value: state.cardData!.cardId,
+                        label: 'UID',
+                        value: state.lastWrittenUid ?? 'Chưa ghi thẻ',
+                        valueStyle: TextStyle(
+                          fontFamily: 'monospace',
+                          color: state.lastWrittenUid != null 
+                              ? Colors.green.shade700 
+                              : Colors.grey.shade600,
+                        ),
                       ),
                     ] else if (state.status != WriteCardStatus.loading) ...[
                       const Text(
@@ -105,6 +111,33 @@ class _WriteCardScreenState extends ConsumerState<WriteCardScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            // Security Tip
+            if (state.cardData != null) ...[
+              Card(
+                color: Colors.blue.shade50,
+                child: ListTile(
+                  leading: Icon(
+                    Icons.tips_and_updates,
+                    color: Colors.blue.shade700,
+                  ),
+                  title: Text(
+                    'Mẹo bảo mật',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Sau khi ghi thẻ, hãy vào Quản lý thẻ để khóa bảo mật. Bạn vẫn có thể ghi lại thẻ đã khóa để cập nhật thông tin.',
+                    style: TextStyle(
+                      color: Colors.blue.shade900,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
 
             // Instructions
             if (state.cardData != null) ...[
@@ -174,30 +207,17 @@ class _WriteCardScreenState extends ConsumerState<WriteCardScreen> {
                       ),
               )
             else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  FilledButton.icon(
-                    onPressed: state.status == WriteCardStatus.writing
-                        ? null
-                        : controller.writeCard,
-                    icon: const Icon(Icons.nfc),
-                    label: state.status == WriteCardStatus.writing
-                        ? const Text('Đang ghi...')
-                        : const Text('Chạm thẻ để ghi'),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    onPressed: state.status == WriteCardStatus.writing
-                        ? null
-                        : controller.loadCardData,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Tạo lại dữ liệu'),
-                  ),
-                ],
+              FilledButton.icon(
+                onPressed: state.status == WriteCardStatus.writing
+                    ? null
+                    : controller.writeCard,
+                icon: const Icon(Icons.nfc),
+                label: state.status == WriteCardStatus.writing
+                    ? const Text('Đang ghi...')
+                    : const Text('Chạm thẻ để ghi'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
               ),
             const SizedBox(height: 16),
 
@@ -258,10 +278,15 @@ class _WriteCardScreenState extends ConsumerState<WriteCardScreen> {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.label, required this.value});
+  const _InfoRow({
+    required this.label, 
+    required this.value,
+    this.valueStyle,
+  });
 
   final String label;
   final String value;
+  final TextStyle? valueStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +303,10 @@ class _InfoRow extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Text(value),
+            child: Text(
+              value,
+              style: valueStyle,
+            ),
           ),
         ],
       ),

@@ -5,7 +5,12 @@ const logger = require('../utils/logger');
 const validate = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    logger.warn('Validation errors:', errors.array());
+    logger.warn('Validation errors:', JSON.stringify({
+      url: req.originalUrl,
+      method: req.method,
+      body: req.body,
+      errors: errors.array()
+    }));
     return res.status(400).json({
       success: false,
       error: {
@@ -127,7 +132,7 @@ const cardValidation = {
     body('uid')
       .notEmpty().withMessage('UID của thẻ là bắt buộc')
       .isLength({ min: 4, max: 64 }).withMessage('UID phải từ 4 đến 64 ký tự')
-      .matches(/^[A-Za-z0-9:_-]+$/).withMessage('UID chỉ được chứa chữ, số và các ký tự : _ -'),
+      .trim(),
 
     body('alias')
       .optional()

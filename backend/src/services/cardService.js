@@ -13,13 +13,33 @@ class CardService {
   async linkCard(userId, { uid, alias, metadata, makePrimary = false }) {
     try {
       const normalizedUid = uid.toUpperCase();
+      
+      // Debug log
+      logger.info(`Link card attempt - UID: ${normalizedUid}, Length: ${normalizedUid.length}, UserId: ${userId}`);
+      logger.info(`Link card data - alias: ${alias}, metadata: ${JSON.stringify(metadata)}, makePrimary: ${makePrimary}`);
 
       const existingCard = await cardRepository.findByUid(normalizedUid);
       if (existingCard) {
-        if (existingCard.userId.toString() !== userId.toString()) {
-          throw new Error('Thẻ NFC này đã được liên kết với tài khoản khác');
+        logger.info(`Existing card found - UID: ${normalizedUid}, CardUserId: ${existingCard.userId}, CurrentUserId: ${userId}, isLocked: ${existingCard.isLocked}`);
+        
+        if (existingCard.userId.toString() === userId.toString()) {
+          // Same user: Allow updating existing card (re-write) even if locked
+          // User owns this card, they can update it anytime
+          existingCard.alias = alias?.trim() || existingCard.alias;
+          existingCard.metadata = metadata || existingCard.metadata;
+          existingCard.linkedAt = new Date(); // Update linked time
+          await cardRepository.save(existingCard);
+          logger.info(`Card updated for user ${userId}: ${normalizedUid}, isLocked: ${existingCard.isLocked}`);
+          return existingCard;
+        } else {
+          // Different user - Check if locked
+          logger.error(`Card conflict - UID: ${normalizedUid} belongs to userId: ${existingCard.userId}, attempted by userId: ${userId}`);
+          
+          if (existingCard.isLocked) {
+            throw new Error('Thẻ này đã được khóa bởi người dùng khác');
+          }
+          throw new Error('Thẻ này đang được sử dụng bởi người dùng khác');
         }
-        throw new Error('Thẻ NFC đã được liên kết với tài khoản của bạn');
       }
 
       const cardDocument = cardRepository.createDocument({
@@ -28,10 +48,22 @@ class CardService {
         alias: alias?.trim() || '',
         metadata,
         isPrimary: false,
-        status: 'ACTIVE'
+        status: 'ACTIVE',
+        isLocked: false,
+        lockedAt: null
       });
 
+      logger.info('Saving card document:', {
+        userId: cardDocument.userId,
+        uid: cardDocument.uid,
+        alias: cardDocument.alias,
+        status: cardDocument.status,
+        isLocked: cardDocument.isLocked
+      });
+      
       await cardRepository.save(cardDocument);
+      
+      logger.info('Card saved successfully');
 
       const userCards = await cardRepository.find({ userId });
       const shouldSetPrimary = makePrimary || userCards.length === 1;
@@ -45,7 +77,27 @@ class CardService {
 
       return cardDocument;
     } catch (error) {
-      logger.error('Link card error:', error.message);
+      // Detailed error logging
+      if (error.name === 'ValidationError') {
+        logger.error('Mongoose validation error:', {
+          message: error.message,
+          errors: error.errors,
+          name: error.name
+        });
+      } else if (error.name === 'MongoError' || error.name === 'MongoServerError') {
+        logger.error('MongoDB error:', {
+          message: error.message,
+          code: error.code,
+          name: error.name
+        });
+      } else {
+        logger.error('Link card error:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+          toString: error.toString()
+        });
+      }
       throw error;
     }
   }
@@ -168,6 +220,216 @@ class CardService {
       };
     } catch (error) {
       logger.error('Verify card data error:', error.message);
+      throw error;
+    }
+  }
+
+  async getUserByCardUid(uid) {
+    try {
+      const normalizedUid = uid.toUpperCase();
+      const card = await cardRepository.findByUid(normalizedUid);
+      
+      if (!card) {
+        throw new Error('Thẻ NFC không tồn tại trong hệ thống');
+      }
+
+      if (card.status !== 'ACTIVE') {
+        throw new Error('Thẻ NFC không ở trạng thái hoạt động');
+      }
+
+      // Update last used timestamp
+      card.lastUsedAt = new Date();
+      await cardRepository.save(card);
+
+      logger.info(`Card used for payment: ${normalizedUid} by user ${card.userId}`);
+
+      return card.userId;
+    } catch (error) {
+      logger.error('Get user by card UID error:', error.message);
+      throw error;
+    }
+  }
+
+  async toggleCardLock(userId, cardId, lock, password) {
+    try {
+      logger.info('toggleCardLock service - userId:', userId, 'cardId:', cardId, 'lock:', lock);
+      
+      const card = await cardRepository.findOne({ _id: cardId, userId });
+      if (!card) {
+        logger.error('Card not found - cardId:', cardId, 'userId:', userId);
+        throw new Error('Không tìm thấy thẻ');
+      }
+
+      logger.info('Card found:', card.uid);
+
+      // Verify password - must explicitly select password field
+      const user = await userRepository.findById(userId, { select: '+password' });
+      if (!user) {
+        logger.error('User not found - userId:', userId);
+        throw new Error('Không tìm thấy người dùng');
+      }
+
+      logger.info('User found, verifying password...');
+      
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
+        logger.error('Invalid password for user:', userId);
+        throw new Error('Mật khẩu không chính xác');
+      }
+
+      logger.info('Password valid, updating card lock status...');
+
+      card.isLocked = lock;
+      card.lockedAt = lock ? new Date() : null;
+      await cardRepository.save(card);
+
+      logger.info(`Card ${lock ? 'locked' : 'unlocked'}: ${card.uid} by user ${userId}`);
+
+      return card;
+    } catch (error) {
+      logger.error('Toggle card lock service error:', {
+        message: error.message,
+        stack: error.stack,
+        userId,
+        cardId
+      });
+      throw error;
+    }
+  }
+
+  async deleteCard(userId, cardId, password) {
+    try {
+      const card = await cardRepository.findOne({ _id: cardId, userId });
+      if (!card) {
+        throw new Error('Không tìm thấy thẻ');
+      }
+
+      // Verify password - must explicitly select password field
+      const user = await userRepository.findById(userId, { select: '+password' });
+      if (!user) {
+        throw new Error('Không tìm thấy người dùng');
+      }
+
+      const isPasswordValid = await user.comparePassword(password);
+      if (!isPasswordValid) {
+        throw new Error('Mật khẩu không chính xác');
+      }
+
+      // Delete the card
+      await cardRepository.deleteById(cardId);
+
+      logger.info(`Card deleted: ${card.uid} by user ${userId}`);
+
+      return { success: true, uid: card.uid };
+    } catch (error) {
+      logger.error('Delete card error:', error.message);
+      throw error;
+    }
+  }
+
+  // Admin methods
+  async getAllCards({ page = 1, limit = 50, search, status, isLocked } = {}) {
+    try {
+      const query = {};
+
+      // Search by UID, alias, or populate user's studentId
+      if (search) {
+        const searchRegex = new RegExp(search, 'i');
+        query.$or = [
+          { uid: searchRegex },
+          { alias: searchRegex }
+        ];
+      }
+
+      if (status) {
+        query.status = status.toUpperCase();
+      }
+
+      if (typeof isLocked === 'boolean') {
+        query.isLocked = isLocked;
+      }
+
+      const skip = (page - 1) * limit;
+      const [cards, total] = await Promise.all([
+        cardRepository.find(query, {
+          skip,
+          limit,
+          sort: { linkedAt: -1 },
+          populate: {
+            path: 'userId',
+            select: 'studentId email profile.firstName profile.lastName'
+          }
+        }),
+        cardRepository.countDocuments(query)
+      ]);
+
+      const formattedCards = cards.map(card => ({
+        id: card._id,
+        uid: card.uid,
+        alias: card.alias,
+        status: card.status,
+        isPrimary: card.isPrimary,
+        isLocked: card.isLocked,
+        linkedAt: card.linkedAt,
+        lastUsedAt: card.lastUsedAt,
+        lockedAt: card.lockedAt,
+        user: card.userId ? {
+          id: card.userId._id,
+          studentId: card.userId.studentId,
+          email: card.userId.email,
+          fullName: `${card.userId.profile?.firstName || ''} ${card.userId.profile?.lastName || ''}`.trim()
+        } : null
+      }));
+
+      return {
+        cards: formattedCards,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit)
+        }
+      };
+    } catch (error) {
+      logger.error('Get all cards error:', error.message);
+      throw error;
+    }
+  }
+
+  async adminDeleteCard(cardId) {
+    try {
+      const card = await cardRepository.findById(cardId);
+      if (!card) {
+        throw new Error('Không tìm thấy thẻ');
+      }
+
+      await cardRepository.deleteById(cardId);
+
+      logger.info(`Card deleted by admin: ${card.uid}`);
+
+      return { success: true, uid: card.uid };
+    } catch (error) {
+      logger.error('Admin delete card error:', error.message);
+      throw error;
+    }
+  }
+
+  async adminUnlockCard(cardId) {
+    try {
+      const card = await cardRepository.findById(cardId);
+      if (!card) {
+        throw new Error('Không tìm thấy thẻ');
+      }
+
+      card.isLocked = false;
+      card.lockedAt = null;
+      await cardRepository.save(card);
+
+      logger.info(`Card unlocked by admin: ${card.uid}`);
+
+      return card;
+    } catch (error) {
+      logger.error('Admin unlock card error:', error.message);
       throw error;
     }
   }
