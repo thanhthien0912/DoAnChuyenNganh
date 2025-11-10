@@ -62,6 +62,9 @@ const walletSchema = new mongoose.Schema({
   lastResetDate: {
     type: Date,
     default: Date.now
+  },
+  lastTransactionDate: {
+    type: Date
   }
 }, {
   timestamps: true,
@@ -69,22 +72,8 @@ const walletSchema = new mongoose.Schema({
   toObject: { getters: true }
 });
 
-// Reset daily/monthly counters if needed
+// Note: Daily/monthly counter reset is handled in processTransaction method and controllers
 walletSchema.pre('save', function(next) {
-  const now = new Date();
-  const lastReset = this.lastResetDate || now;
-
-  // Reset daily counter if it's a new day
-  if (now.toDateString() !== lastReset.toDateString()) {
-    this.dailySpent = 0;
-  }
-
-  // Reset monthly counter if it's a new month
-  if (now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear()) {
-    this.monthlySpent = 0;
-  }
-
-  this.lastResetDate = now;
   next();
 });
 
@@ -125,13 +114,40 @@ walletSchema.methods._getSpendingLimitReason = function(amount) {
 
 walletSchema.methods.processTransaction = function(amount, type) {
   const amountNum = parseFloat(amount.toString());
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
 
   if (type === 'payment' || type === 'transfer') {
     this.balance = parseFloat(this.balance.toString()) - amountNum;
-    this.dailySpent = parseFloat(this.dailySpent.toString()) + amountNum;
-    this.monthlySpent = parseFloat(this.monthlySpent.toString()) + amountNum;
+    
+    // Handle daily/monthly spent with reset logic
+    if (this.lastTransactionDate) {
+      const lastTxDate = new Date(this.lastTransactionDate);
+      
+      // Reset daily counter if it's a new day
+      if (lastTxDate < todayStart) {
+        this.dailySpent = amountNum;
+      } else {
+        this.dailySpent = parseFloat(this.dailySpent.toString()) + amountNum;
+      }
+
+      // Reset monthly counter if it's a new month
+      if (lastTxDate < monthStart) {
+        this.monthlySpent = amountNum;
+      } else {
+        this.monthlySpent = parseFloat(this.monthlySpent.toString()) + amountNum;
+      }
+    } else {
+      // First transaction
+      this.dailySpent = amountNum;
+      this.monthlySpent = amountNum;
+    }
+    
+    this.lastTransactionDate = now;
   } else if (type === 'topup' || type === 'refund') {
     this.balance = parseFloat(this.balance.toString()) + amountNum;
+    this.lastTransactionDate = now;
   }
 };
 

@@ -41,10 +41,21 @@ const items = [
   // Bus items
   {
     categoryKey: 'BUS',
+    name: 'Vé xe buýt sinh viên',
+    description: 'Vé xe buýt ưu đãi dành cho sinh viên',
+    price: 3000,
+    displayOrder: 1,
+    metadata: {
+      route: 'Trường - Trung tâm',
+      studentOnly: true
+    }
+  },
+  {
+    categoryKey: 'BUS',
     name: 'Vé xe buýt 1 lượt',
     description: 'Vé xe buýt đơn từ trường đi trung tâm',
     price: 7000,
-    displayOrder: 1,
+    displayOrder: 2,
     metadata: {
       route: 'Trường - Trung tâm'
     }
@@ -54,7 +65,7 @@ const items = [
     name: 'Vé xe buýt tuần',
     description: 'Vé xe buýt không giới hạn trong 1 tuần',
     price: 70000,
-    displayOrder: 2,
+    displayOrder: 3,
     metadata: {
       route: 'Tất cả tuyến'
     }
@@ -64,7 +75,7 @@ const items = [
     name: 'Vé xe buýt tháng',
     description: 'Vé xe buýt không giới hạn trong 1 tháng',
     price: 200000,
-    displayOrder: 3,
+    displayOrder: 4,
     metadata: {
       route: 'Tất cả tuyến'
     }

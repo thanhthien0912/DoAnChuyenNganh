@@ -155,18 +155,21 @@ class POSController {
       if (wallet.lastTransactionDate) {
         const lastTxDate = new Date(wallet.lastTransactionDate);
         
+        // Reset daily counter if it's a new day
         if (lastTxDate < todayStart) {
           wallet.dailySpent = totalAmount;
         } else {
           wallet.dailySpent = (parseFloat(wallet.dailySpent) + totalAmount).toFixed(2);
         }
 
+        // Reset monthly counter if it's a new month
         if (lastTxDate < monthStart) {
           wallet.monthlySpent = totalAmount;
         } else {
           wallet.monthlySpent = (parseFloat(wallet.monthlySpent) + totalAmount).toFixed(2);
         }
       } else {
+        // First transaction
         wallet.dailySpent = totalAmount;
         wallet.monthlySpent = totalAmount;
       }

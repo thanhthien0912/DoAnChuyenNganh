@@ -2,28 +2,28 @@
 
 ## Completed Tasks ✅
 
-### Latest Updates (05/11/2025)
-- ✅ **NFC Card Write Feature**: Sinh viên tự ghi thẻ NFC với HMAC-SHA256 signature
-  - Backend API: `GET /api/cards/generate-write-data` với signature verification
-  - Mobile WriteCardScreen: Tự động load và ghi thẻ NFC
-  - Security: HMAC-SHA256 signature để xác thực thẻ
-  - Auto-link card sau khi ghi thành công
-- ✅ **State Management Fix**: Sửa vấn đề state không reset khi đăng xuất/đăng nhập
-  - AuthController: Invalidate providers khi logout
-  - HomeController: Watch auth state để rebuild
-  - ProfileController: Refactor sang AsyncNotifier
-  - WriteCardController: Reset logs khi user thay đổi
-- ✅ **User Management Enhancement**: Hard delete user với cascade delete
-  - Delete user xóa luôn: Wallet, Transaction, TopupRequest, Token
-  - Update UI thông báo cho admin
-  - BaseRepository: Thêm deleteById, deleteOne, deleteMany methods
-- ✅ **CORS Configuration**: Support mobile app development
-  - Allow all origins trong development mode
-  - Mobile app có thể kết nối backend từ emulator/device
-- ✅ **Documentation Updates**:
-  - NFC_CARD_WRITE_GUIDE.md: Hướng dẫn chi tiết ghi thẻ NFC
-  - STATE_MANAGEMENT_FIX.md: Technical doc về state management
-  - MOBILE_DEBUG_GUIDE.md: Debug guide cho mobile app
+### Latest Updates (10/11/2025)
+- ✅ **Daily/Monthly Spent Calculation Fix**: Sửa logic cộng dồn chi tiêu backend
+  - Thêm field lastTransactionDate vào Wallet schema
+  - Cập nhật processTransaction() method với proper reset logic
+  - Update database để tính lại dailySpent/monthlySpent từ transactions
+  - Test confirm: 40,000 + 15,000 = 55,000 (cộng dồn đúng)
+- ✅ **Student Interface Simplification**: Xóa chức năng thanh toán/nạp tiền web sinh viên
+  - Dashboard.jsx: Remove payment/topup buttons và dialogs
+  - Wallet.jsx: Remove payment/topup buttons và dialogs  
+  - Students chỉ có thể xem thông tin, không thể thực hiện giao dịch web
+- ✅ **UI/UX Improvements**: Làm đẹp lại interface
+  - Student Wallet: Xóa hiển thị "Giới hạn:" chi tiêu
+  - Admin Dashboard: Modern design với gradients, hover effects
+  - Admin: Remove "Tổng ví" và "Thông tin hệ thống" cards
+  - Admin: Thêm "Doanh thu tháng này" với smart calculation
+  - Admin: Use LinearProgress bars, display full amounts (not "M" format)
+- ✅ **Previous Updates (05/11/2025)**:
+  - NFC Card Write Feature với HMAC-SHA256 signature
+  - State Management Fix (prevent stale data)
+  - User Management Enhancement (cascade delete)
+  - CORS Configuration cho mobile development
+  - Documentation updates
 
 ### Phase 1: Foundation Setup (27/09/2025)
 - ✅ **Project Rules Document**: Hoàn thiện file rule.md với các quy tắc phát triển

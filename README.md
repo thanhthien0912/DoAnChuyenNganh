@@ -253,10 +253,10 @@ flutter clean              # Clean build artifacts
 
 #### Quản lý Ví
 - ✅ Xem số dư ví thời gian thực
-- ✅ Home dashboard với quick actions
-- 🔄 Nạp tiền vào ví (yêu cầu admin approve)
-- 🔄 Kiểm tra giới hạn chi tiêu (ngày/tháng)
+- ✅ Home dashboard với thông tin tổng quan
+- 🔄 **Đã chi hôm nay/tháng này** - Hiển thị tổng chi tiêu đã cộng dồn đúng
 - 🔄 Lịch sử giao dịch chi tiết với bộ lọc
+- 🔄 **Không có chức năng nạp tiền/thanh toán** trên web (chỉ xem thông tin)
 
 #### Ghi thẻ NFC (NEW - ✅ Hoàn thành)
 - ✅ **Tự động ghi thẻ sinh viên** không cần admin
@@ -282,7 +282,11 @@ flutter clean              # Clean build artifacts
 ### Cổng Quản trị (Web - React)
 
 #### Dashboard Thống kê
-- ✅ Tổng quan doanh thu và giao dịch
+- ✅ **Giao diện hiện đại** với gradient backgrounds và hover effects
+- ✅ Tổng quan người dùng, giao dịch hôm nay, doanh thu
+- ✅ **Doanh thu tháng này** - Tính toán tự động dựa trên doanh thu trung bình
+- ✅ **Thống kê giao dịch hôm nay** - Phân loại thanh toán/nạp tiền với progress bars
+- ✅ **Phân loại giao dịch** - Visual breakdown với colors và percentages
 - 🔄 Biểu đồ xu hướng theo thời gian
 - 🔄 Top sinh viên giao dịch nhiều nhất
 - 🔄 Thống kê theo danh mục
@@ -341,11 +345,12 @@ flutter clean              # Clean build artifacts
 - 🔄 Merchant: Thông tin điểm bán hàng
 - 🔄 Category: Danh mục giao dịch
 
-**Recent Updates (05/11/2025):**
-- ✅ NFC Card Write Feature - Sinh viên tự ghi thẻ với signature security
-- ✅ State Management Fix - Auto-refresh khi switch user
-- ✅ User Hard Delete - Cascade delete toàn bộ dữ liệu liên quan
-- ✅ CORS Fix - Mobile app development support
+**Recent Updates (10/11/2025):**
+- ✅ Daily/Monthly Spent Fix - Logic cộng dồn chi tiêu hoạt động đúng
+- ✅ Student Interface Simplification - Xóa chức năng nạp tiền/thanh toán web sinh viên
+- ✅ Admin Dashboard Enhancement - Giao diện đẹp với gradients, thêm doanh thu tháng
+- ✅ UI/UX Improvements - Xóa giới hạn hiển thị, hiện số tiền cụ thể
+- ✅ Previous Updates (05/11/2025) - NFC Card Write, State Management, User Hard Delete, CORS
 
 **Chú thích:**
 - ✅ = Đã hoàn thành

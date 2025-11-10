@@ -6,12 +6,6 @@ import {
   Typography,
   Box,
   CircularProgress,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
   List,
   ListItem,
   ListItemText,
@@ -21,9 +15,6 @@ import {
   AccountBalanceWallet,
   TrendingUp,
   Payment,
-  AccountBalance,
-  Add,
-  Remove,
 } from '@mui/icons-material'
 import { transactionAPI } from '../../services/api'
 import { useSnackbar } from '../../contexts/SnackContext'
@@ -33,11 +24,6 @@ import { formatVND, formatCurrency, formatDate } from '../../utils/formatters'
 const Wallet = () => {
   const [loading, setLoading] = useState(true)
   const [transactions, setTransactions] = useState([])
-  const [topupDialogOpen, setTopupDialogOpen] = useState(false)
-  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false)
-  const [topupAmount, setTopupAmount] = useState('')
-  const [paymentAmount, setPaymentAmount] = useState('')
-  const [paymentDescription, setPaymentDescription] = useState('')
   const { showSnackbar } = useSnackbar()
   const { wallet, refreshProfile } = useAuth()
 
@@ -63,45 +49,6 @@ const Wallet = () => {
       setTransactions(response.data.data.transactions)
     } catch (error) {
       console.error('Error loading transactions:', error)
-    }
-  }
-
-  const handleTopup = async () => {
-    try {
-      await transactionAPI.processTopup({
-        amount: parseFloat(topupAmount),
-        description: 'Nạp tiền vào ví',
-      })
-
-      showSnackbar('Nạp tiền thành công!', 'success')
-      setTopupDialogOpen(false)
-      setTopupAmount('')
-
-      // Reload wallet data
-      await refreshProfile()
-      await loadRecentTransactions()
-    } catch (error) {
-      showSnackbar('Nạp tiền thất bại', 'error')
-    }
-  }
-
-  const handlePayment = async () => {
-    try {
-      await transactionAPI.processPayment({
-        amount: parseFloat(paymentAmount),
-        description: paymentDescription || 'Thanh toán',
-      })
-
-      showSnackbar('Thanh toán thành công!', 'success')
-      setPaymentDialogOpen(false)
-      setPaymentAmount('')
-      setPaymentDescription('')
-
-      // Reload wallet data
-      await refreshProfile()
-      await loadRecentTransactions()
-    } catch (error) {
-      showSnackbar('Thanh toán thất bại', 'error')
     }
   }
 
@@ -150,9 +97,6 @@ const Wallet = () => {
                   <Typography variant="h5">
                     {formatVND(wallet?.dailySpent)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Giới hạn: {formatVND(wallet?.dailyLimit)}
-                  </Typography>
                 </Box>
               </Box>
             </CardContent>
@@ -172,35 +116,12 @@ const Wallet = () => {
                   <Typography variant="h5">
                     {formatVND(wallet?.monthlySpent)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Giới hạn: {formatVND(wallet?.monthlyLimit)}
-                  </Typography>
                 </Box>
               </Box>
             </CardContent>
           </Card>
         </Grid>
       </Grid>
-
-      {/* Action Buttons */}
-      <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-        <Button
-          variant="contained"
-          color="primary"
-          startIcon={<Add />}
-          onClick={() => setTopupDialogOpen(true)}
-        >
-          Nạp tiền
-        </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<Remove />}
-          onClick={() => setPaymentDialogOpen(true)}
-        >
-          Thanh toán
-        </Button>
-      </Box>
 
       {/* Recent Transactions */}
       <Card sx={{ mt: 3 }}>
@@ -244,64 +165,6 @@ const Wallet = () => {
           </List>
         </CardContent>
       </Card>
-
-      {/* Topup Dialog */}
-      <Dialog open={topupDialogOpen} onClose={() => setTopupDialogOpen(false)}>
-        <DialogTitle>Nạp tiền vào ví</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Số tiền (VND)"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={topupAmount}
-            onChange={(e) => setTopupAmount(e.target.value)}
-            inputProps={{ min: 1000, max: 10000000 }}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setTopupDialogOpen(false)}>Hủy</Button>
-          <Button onClick={handleTopup} variant="contained">
-            Nạp tiền
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Payment Dialog */}
-      <Dialog open={paymentDialogOpen} onClose={() => setPaymentDialogOpen(false)}>
-        <DialogTitle>Thanh toán</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            margin="dense"
-            label="Số tiền (VND)"
-            type="number"
-            fullWidth
-            variant="outlined"
-            value={paymentAmount}
-            onChange={(e) => setPaymentAmount(e.target.value)}
-            inputProps={{ min: 1000, max: 10000000 }}
-            sx={{ mb: 2 }}
-          />
-          <TextField
-            margin="dense"
-            label="Mô tả"
-            type="text"
-            fullWidth
-            variant="outlined"
-            value={paymentDescription}
-            onChange={(e) => setPaymentDescription(e.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPaymentDialogOpen(false)}>Hủy</Button>
-          <Button onClick={handlePayment} variant="contained" color="secondary">
-            Thanh toán
-          </Button>
-        </DialogActions>
-      </Dialog>
     </Box>
   )
 }

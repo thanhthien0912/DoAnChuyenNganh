@@ -35,22 +35,19 @@ class POSScreen extends ConsumerWidget {
               );
             }
 
-            return GridView.builder(
+            return ListView.builder(
               padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
-                childAspectRatio: 1,
-              ),
               itemCount: categories.length,
               itemBuilder: (context, index) {
                 final category = categories[index];
-                return _CategoryCard(
-                  icon: category.icon,
-                  name: category.name,
-                  description: category.description ?? '',
-                  onTap: () => context.push('/pos/categories/${category.key}', extra: category),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _CategoryCard(
+                    icon: category.icon,
+                    name: category.name,
+                    description: category.description ?? '',
+                    onTap: () => context.push('/pos/categories/${category.key}', extra: category),
+                  ),
                 );
               },
             );
@@ -82,29 +79,38 @@ class _CategoryCard extends StatelessWidget {
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: [
               Text(
                 icon,
-                style: const TextStyle(fontSize: 64),
+                style: const TextStyle(fontSize: 48),
               ),
-              const SizedBox(height: 12),
-              Text(
-                name,
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
-              ),
-              if (description.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      name,
+                      style: Theme.of(context).textTheme.titleLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (description.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        description,
+                        style: Theme.of(context).textTheme.bodySmall,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
                 ),
-              ],
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.arrow_forward_ios, size: 16),
             ],
           ),
         ),
