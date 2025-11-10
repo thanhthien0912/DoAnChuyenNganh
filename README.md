@@ -202,6 +202,7 @@ flutter pub get
 # Chạy app trên emulator hoặc device
 flutter run
 flutter run --dart-define=API_BASE_URL=http://192.168.1.91:3000/api
+# Theo IP thực
 # Build APK cho Android
 flutter build apk
 
