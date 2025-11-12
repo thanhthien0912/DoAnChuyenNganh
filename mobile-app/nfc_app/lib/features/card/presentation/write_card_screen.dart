@@ -207,17 +207,72 @@ class _WriteCardScreenState extends ConsumerState<WriteCardScreen> {
                       ),
               )
             else
-              FilledButton.icon(
-                onPressed: state.status == WriteCardStatus.writing
-                    ? null
-                    : controller.writeCard,
-                icon: const Icon(Icons.nfc),
-                label: state.status == WriteCardStatus.writing
-                    ? const Text('Đang ghi...')
-                    : const Text('Chạm thẻ để ghi'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
+              Column(
+                children: [
+                  // Lock status warning
+                  if (state.userCards != null && state.userCards!.isNotEmpty)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: state.userCards!.any((card) => card.isLocked)
+                            ? Colors.red.shade50
+                            : Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: state.userCards!.any((card) => card.isLocked)
+                              ? Colors.red.shade200
+                              : Colors.green.shade200,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            state.userCards!.any((card) => card.isLocked)
+                                ? Icons.lock
+                                : Icons.lock_open,
+                            color: state.userCards!.any((card) => card.isLocked)
+                                ? Colors.red.shade600
+                                : Colors.green.shade600,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              state.userCards!.any((card) => card.isLocked)
+                                  ? 'Bạn có thẻ đang bị khoá. Không thể ghi thẻ mới.'
+                                  : 'Tất cả thẻ đã mở khoá. Có thể ghi thẻ mới.',
+                              style: TextStyle(
+                                color: state.userCards!.any((card) => card.isLocked)
+                                    ? Colors.red.shade800
+                                    : Colors.green.shade800,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  
+                  // Write card button
+                  FilledButton.icon(
+                    onPressed: (state.status == WriteCardStatus.writing || 
+                               (state.userCards != null && 
+                                state.userCards!.any((card) => card.isLocked)))
+                        ? null
+                        : controller.writeCard,
+                    icon: const Icon(Icons.nfc),
+                    label: state.status == WriteCardStatus.writing
+                        ? const Text('Đang ghi...')
+                        : const Text('Chạm thẻ để ghi'),
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: (state.userCards != null && 
+                                      state.userCards!.any((card) => card.isLocked))
+                          ? Colors.grey.shade400
+                          : null,
+                    ),
+                  ),
+                ],
               ),
             const SizedBox(height: 16),
 

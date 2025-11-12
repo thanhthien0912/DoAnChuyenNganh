@@ -6,6 +6,7 @@ import 'package:ndef/ndef.dart' as ndef;
 import '../../../core/providers.dart';
 import '../../auth/application/auth_controller.dart';
 import '../../auth/domain/auth_state.dart';
+import '../domain/card_model.dart';
 import '../domain/card_write_data.dart';
 import '../infrastructure/card_repository.dart';
 
@@ -20,6 +21,7 @@ class WriteCardState {
   const WriteCardState({
     this.status = WriteCardStatus.idle,
     this.cardData,
+    this.userCards,
     this.errorMessage,
     this.log = const [],
     this.lastWrittenUid,
@@ -27,6 +29,7 @@ class WriteCardState {
 
   final WriteCardStatus status;
   final CardWriteData? cardData;
+  final List<CardModel>? userCards;
   final String? errorMessage;
   final List<String> log;
   final String? lastWrittenUid;
@@ -34,6 +37,7 @@ class WriteCardState {
   WriteCardState copyWith({
     WriteCardStatus? status,
     CardWriteData? cardData,
+    List<CardModel>? userCards,
     String? errorMessage,
     List<String>? log,
     String? lastWrittenUid,
@@ -43,6 +47,7 @@ class WriteCardState {
     return WriteCardState(
       status: status ?? this.status,
       cardData: cardData ?? this.cardData,
+      userCards: userCards ?? this.userCards,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       log: log ?? this.log,
       lastWrittenUid: clearUid ? null : (lastWrittenUid ?? this.lastWrittenUid),
@@ -74,10 +79,14 @@ class WriteCardController extends StateNotifier<WriteCardState> {
     );
 
     try {
+      // Get user cards to check if any card is locked
+      final userCards = await _repository.getUserCards();
+      
       final cardData = await _repository.generateWriteData();
       state = state.copyWith(
         status: WriteCardStatus.idle,
         cardData: cardData,
+        userCards: userCards,
         log: [
           ...state.log,
           'Dữ liệu đã sẵn sàng!',
@@ -97,6 +106,8 @@ class WriteCardController extends StateNotifier<WriteCardState> {
 
   Future<void> writeCard() async {
     final cardData = state.cardData;
+    final userCards = state.userCards;
+    
     if (cardData == null) {
       state = state.copyWith(
         errorMessage: 'Vui lòng tải dữ liệu trước',
@@ -106,6 +117,26 @@ class WriteCardController extends StateNotifier<WriteCardState> {
     }
 
     if (state.status == WriteCardStatus.writing) return;
+
+    // Check if any existing card is locked
+    if (userCards != null && userCards.isNotEmpty) {
+      final hasLockedCard = userCards.any((card) => card.isLocked);
+      if (hasLockedCard) {
+        final lockedCard = userCards.firstWhere((card) => card.isLocked);
+        state = state.copyWith(
+          status: WriteCardStatus.error,
+          errorMessage: 'Tài khoản của bạn đang có thẻ bị khoá. Vui lòng mở khoá thẻ "${lockedCard.alias}" trước khi thêm thẻ mới.',
+          log: [
+            ...state.log,
+            'Lỗi: Thẻ "${lockedCard.alias}" đang bị khoá',
+            'Không thể ghi thêm thẻ khi có thẻ đang bị khoá',
+            'Vui lòng vào Quản lý thẻ để mở khoá',
+            '---',
+          ],
+        );
+        return;
+      }
+    }
 
     state = state.copyWith(
       status: WriteCardStatus.writing,
