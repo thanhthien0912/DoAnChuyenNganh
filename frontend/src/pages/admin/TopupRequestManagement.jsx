@@ -29,13 +29,25 @@ import {
   Alert,
   Snackbar,
   CircularProgress,
+  Avatar,
+  Grid,
 } from '@mui/material'
 import {
   CheckCircle as ApproveIcon,
   Cancel as RejectIcon,
   Refresh as RefreshIcon,
+  Person as PersonIcon,
+  AttachMoney,
+  Notifications,
+  FilterList,
+  Security,
+  CreditCard,
+  Payment,
+  Contactless,
 } from '@mui/icons-material'
 import { adminAPI } from '../../services/api'
+import { useSnackbar } from '../../contexts/SnackContext'
+import { useAuth } from '../../contexts/AuthContext'
 
 const STATUS_COLORS = {
   PENDING: 'warning',
@@ -189,158 +201,314 @@ export default function TopupRequestManagement() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" component="h1">
-          Quản lý yêu cầu nạp tiền
-        </Typography>
-        <Tooltip title="Làm mới">
-          <IconButton onClick={fetchTopupRequests} disabled={loading}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-            <FormControl sx={{ minWidth: 200 }}>
-              <InputLabel>Trạng thái</InputLabel>
-              <Select
-                value={statusFilter}
-                label="Trạng thái"
-                onChange={(e) => {
-                  setStatusFilter(e.target.value)
-                  setPage(0)
-                }}
-              >
-                <MenuItem value="">Tất cả</MenuItem>
-                <MenuItem value="PENDING">Chờ duyệt</MenuItem>
-                <MenuItem value="APPROVED">Đã duyệt</MenuItem>
-                <MenuItem value="REJECTED">Từ chối</MenuItem>
-              </Select>
-            </FormControl>
-            
-            <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto' }}>
-              Tổng: {totalRequests} yêu cầu
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#F8F9FA' }}>
+      {/* Header */}
+      <Box 
+        sx={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          p: 3,
+          borderRadius: { xs: 0, md: '0 0 30px 30px' }
+        }}
+      >
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Box>
+            <Typography variant="h4" sx={{ color: 'white', fontWeight: 'bold', mb: 1 }}>
+              Quản lý yêu cầu nạp tiền
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+              Xử lý và duyệt các yêu cầu nạp tiền từ người dùng
             </Typography>
           </Box>
-        </CardContent>
-      </Card>
+          <Box display="flex" alignItems="center" gap={2}>
+            <Chip 
+              label="Admin" 
+              color="error" 
+              size="small"
+              sx={{ 
+                backgroundColor: 'rgba(239, 68, 68, 0.2)', 
+                color: 'white',
+                borderRadius: '20px'
+              }} 
+            />
+            <Tooltip title="Làm mới">
+              <IconButton 
+                onClick={fetchTopupRequests} 
+                disabled={loading}
+                sx={{ color: 'white' }}
+              >
+                <RefreshIcon />
+              </IconButton>
+            </Tooltip>
+            <IconButton sx={{ color: 'white' }}>
+              <Notifications />
+            </IconButton>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.2)', width: 40, height: 40 }}>
+              A
+            </Avatar>
+          </Box>
+        </Box>
+      </Box>
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Mã tham chiếu</TableCell>
-              <TableCell>Sinh viên</TableCell>
-              <TableCell align="right">Số tiền</TableCell>
-              <TableCell>Phương thức</TableCell>
-              <TableCell>Trạng thái</TableCell>
-              <TableCell>Thời gian tạo</TableCell>
-              <TableCell>Ghi chú</TableCell>
-              <TableCell align="center">Hành động</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
+      <Box sx={{ p: 3 }}>
+        {/* Stats Cards */}
+        <Grid container spacing={3} mb={4}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: '20px', p: 3, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                Tổng yêu cầu
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#8B5CF6' }}>
+                {totalRequests}
+              </Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: '20px', p: 3, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                Chờ duyệt
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#F59E0B' }}>
+                {requests.filter(r => r.status === 'PENDING').length}
+              </Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: '20px', p: 3, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                Đã duyệt
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#10B981' }}>
+                {requests.filter(r => r.status === 'APPROVED').length}
+              </Typography>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ borderRadius: '20px', p: 3, textAlign: 'center' }}>
+              <Typography variant="body2" sx={{ color: 'text.secondary', mb: 2 }}>
+                Từ chối
+              </Typography>
+              <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#EF4444' }}>
+                {requests.filter(r => r.status === 'REJECTED').length}
+              </Typography>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Search and Filters */}
+        <Card sx={{ borderRadius: '20px', p: 3, mb: 4 }}>
+          <Box display="flex" alignItems="center" mb={3}>
+            <FilterList sx={{ mr: 1, color: '#8B5CF6' }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              Bộ lọc và tìm kiếm
+            </Typography>
+          </Box>
+          <Grid container spacing={2} mb={3}>
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth>
+                <InputLabel>Trạng thái</InputLabel>
+                <Select
+                  value={statusFilter}
+                  label="Trạng thái"
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value)
+                    setPage(0)
+                  }}
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '12px',
+                    },
+                  }}
+                >
+                  <MenuItem value="">Tất cả</MenuItem>
+                  <MenuItem value="PENDING">Chờ duyệt</MenuItem>
+                  <MenuItem value="APPROVED">Đã duyệt</MenuItem>
+                  <MenuItem value="REJECTED">Từ chối</MenuItem>
+                  <MenuItem value="CANCELLED">Đã hủy</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={8}>
+              <Box display="flex" alignItems="center" justifyContent="flex-end">
+                <Typography variant="body2" color="text.secondary">
+                  Hiển thị {requests.length} / {totalRequests} yêu cầu
+                </Typography>
+              </Box>
+            </Grid>
+          </Grid>
+        </Card>
+
+        {/* Requests Table */}
+        <Card sx={{ borderRadius: '20px', p: 3 }}>
+          <CardContent>
             {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  <CircularProgress />
-                </TableCell>
-              </TableRow>
-            ) : requests.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} align="center">
-                  <Typography color="text.secondary">Không có yêu cầu nào</Typography>
-                </TableCell>
-              </TableRow>
+              <Box display="flex" justifyContent="center" p={6}>
+                <CircularProgress />
+              </Box>
             ) : (
-              requests.map((request) => (
-                <TableRow key={request.id} hover>
-                  <TableCell>
-                    <Typography variant="body2" fontFamily="monospace">
-                      {request.referenceNumber}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" fontWeight="medium">
-                      {request.user?.studentId || 'N/A'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {request.user?.fullName || request.user?.email}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="right">
-                    <Typography variant="body2" fontWeight="medium">
-                      {formatCurrency(request.amount)}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={request.method} size="small" variant="outlined" />
-                  </TableCell>
-                  <TableCell>
-                    <Chip
-                      label={STATUS_LABELS[request.status] || request.status}
-                      color={STATUS_COLORS[request.status] || 'default'}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2">{formatDateTime(request.createdAt)}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Typography variant="body2" noWrap sx={{ maxWidth: 150 }}>
-                      {request.note || '-'}
-                    </Typography>
-                  </TableCell>
-                  <TableCell align="center">
-                    {request.status === 'PENDING' ? (
-                      <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-                        <Tooltip title="Xác nhận">
-                          <IconButton
-                            size="small"
-                            color="success"
-                            onClick={() => handleApproveClick(request)}
-                          >
-                            <ApproveIcon />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Từ chối">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleRejectClick(request)}
-                          >
-                            <RejectIcon />
-                          </IconButton>
-                        </Tooltip>
-                      </Box>
-                    ) : (
-                      <Typography variant="caption" color="text.secondary">
-                        {request.processedBy?.fullName || 'Đã xử lý'}
-                      </Typography>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
+              <>
+                <TableContainer>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Sinh viên</TableCell>
+                        <TableCell>Mã tham chiếu</TableCell>
+                        <TableCell align="right">Số tiền</TableCell>
+                        <TableCell>Phương thức</TableCell>
+                        <TableCell>Trạng thái</TableCell>
+                        <TableCell>Thời gian tạo</TableCell>
+                        <TableCell align="center">Thao tác</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {requests.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={7} align="center">
+                            <Typography color="text.secondary" py={3}>
+                              Không có yêu cầu nào
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        requests.map((request) => (
+                          <TableRow key={request.id} sx={{ '&:hover': { backgroundColor: 'rgba(139, 92, 246, 0.04)' } }}>
+                            <TableCell>
+                              <Box display="flex" alignItems="center" gap={2}>
+                                <Avatar sx={{ bgcolor: '#8B5CF6', width: 40, height: 40 }}>
+                                  <PersonIcon />
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="body2" fontWeight="medium">
+                                    {request.user?.fullName || 'N/A'}
+                                  </Typography>
+                                  <Typography variant="caption" color="text.secondary">
+                                    {request.user?.studentId || 'N/A'}
+                                  </Typography>
+                                </Box>
+                              </Box>
+                            </TableCell>
+                            <TableCell>
+                              <Typography 
+                                variant="body2" 
+                                sx={{ 
+                                  fontFamily: 'monospace',
+                                  bgcolor: 'rgba(139, 92, 246, 0.1)', 
+                                  px: 1, 
+                                  py: 0.5, 
+                                  borderRadius: 1,
+                                  display: 'inline-block'
+                                }}
+                              >
+                                {request.referenceNumber}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="right">
+                              <Typography variant="body2" fontWeight="bold" color="#10B981">
+                                {formatCurrency(request.amount)}
+                              </Typography>
+                            </TableCell>
+                            <TableCell>
+                              <Chip 
+                                icon={<Payment />}
+                                label={request.method} 
+                                size="small" 
+                                variant="outlined"
+                                sx={{ borderRadius: '12px' }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={STATUS_LABELS[request.status] || request.status}
+                                color={STATUS_COLORS[request.status] || 'default'}
+                                size="small"
+                                sx={{ borderRadius: '12px' }}
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2">
+                                {formatDateTime(request.createdAt)}
+                              </Typography>
+                            </TableCell>
+                            <TableCell align="center">
+                              {request.status === 'PENDING' ? (
+                                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                  <Tooltip title="Xác nhận">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => handleApproveClick(request)}
+                                      sx={{
+                                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                        color: '#10B981',
+                                        borderRadius: '8px',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                                        }
+                                      }}
+                                    >
+                                      <ApproveIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Từ chối">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => handleRejectClick(request)}
+                                      sx={{
+                                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                        color: '#EF4444',
+                                        borderRadius: '8px',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                                        }
+                                      }}
+                                    >
+                                      <RejectIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                </Box>
+                              ) : (
+                                <Typography variant="caption" color="text.secondary">
+                                  {request.processedBy?.fullName || 'Đã xử lý'}
+                                </Typography>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+
+                <TablePagination
+                  component="div"
+                  count={totalRequests}
+                  page={page}
+                  onPageChange={handleChangePage}
+                  rowsPerPage={rowsPerPage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={[5, 10, 20, 50]}
+                  labelRowsPerPage="Số dòng mỗi trang:"
+                  labelDisplayedRows={({ from, to, count }) => `${from}-${to} trong tổng số ${count}`}
+                  sx={{
+                    '.MuiTablePagination-select': {
+                      borderRadius: '12px',
+                    },
+                  }}
+                />
+              </>
             )}
-          </TableBody>
-        </Table>
-        <TablePagination
-          component="div"
-          count={totalRequests}
-          page={page}
-          onPageChange={handleChangePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          rowsPerPageOptions={[5, 10, 20, 50]}
-          labelRowsPerPage="Số hàng mỗi trang:"
-        />
-      </TableContainer>
+          </CardContent>
+        </Card>
+      </Box>
 
       {/* Approve Dialog */}
-      <Dialog open={approveDialogOpen} onClose={() => !actionLoading && setApproveDialogOpen(false)}>
+      <Dialog 
+        open={approveDialogOpen} 
+        onClose={() => !actionLoading && setApproveDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+          },
+        }}
+      >
         <DialogTitle>Xác nhận nạp tiền</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -355,18 +523,43 @@ export default function TopupRequestManagement() {
             </Alert>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setApproveDialogOpen(false)} disabled={actionLoading}>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={() => setApproveDialogOpen(false)} 
+            disabled={actionLoading}
+            sx={{
+              borderRadius: '12px',
+              borderColor: '#8B5CF6',
+              color: '#8B5CF6',
+            }}
+          >
             Hủy
           </Button>
-          <Button onClick={handleApproveConfirm} variant="contained" color="success" disabled={actionLoading}>
+          <Button 
+            onClick={handleApproveConfirm} 
+            variant="contained" 
+            color="success" 
+            disabled={actionLoading}
+            sx={{
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+            }}
+          >
             {actionLoading ? <CircularProgress size={24} /> : 'Xác nhận'}
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* Reject Dialog */}
-      <Dialog open={rejectDialogOpen} onClose={() => !actionLoading && setRejectDialogOpen(false)}>
+      <Dialog 
+        open={rejectDialogOpen} 
+        onClose={() => !actionLoading && setRejectDialogOpen(false)}
+        PaperProps={{
+          sx: {
+            borderRadius: '20px',
+          },
+        }}
+      >
         <DialogTitle>Từ chối yêu cầu nạp tiền</DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ mb: 2 }}>
@@ -384,13 +577,35 @@ export default function TopupRequestManagement() {
             onChange={(e) => setRejectionReason(e.target.value)}
             placeholder="Nhập lý do từ chối yêu cầu này..."
             disabled={actionLoading}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '12px',
+              },
+            }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setRejectDialogOpen(false)} disabled={actionLoading}>
+        <DialogActions sx={{ p: 3 }}>
+          <Button 
+            onClick={() => setRejectDialogOpen(false)} 
+            disabled={actionLoading}
+            sx={{
+              borderRadius: '12px',
+              borderColor: '#8B5CF6',
+              color: '#8B5CF6',
+            }}
+          >
             Hủy
           </Button>
-          <Button onClick={handleRejectConfirm} variant="contained" color="error" disabled={actionLoading}>
+          <Button 
+            onClick={handleRejectConfirm} 
+            variant="contained" 
+            color="error" 
+            disabled={actionLoading}
+            sx={{
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+            }}
+          >
             {actionLoading ? <CircularProgress size={24} /> : 'Từ chối'}
           </Button>
         </DialogActions>
